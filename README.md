@@ -7,13 +7,8 @@ This module is a port to Backdrop of two parts of the Drupal contributed module 
 
 
 <h2>Status</h2>
-This port to Backdrop is ready for installation and testing.
-7th June - Main module and Date API module have been revised and basic functions work. Others to follow.
+This is an initial port to create date_repeat as a contributed module for Backdrop, separate from Date in core.
 
-
-<h2>Help & Documentation</h2>
-
-Information for developers is available in readme.txt
 
 
 
