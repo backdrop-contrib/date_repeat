@@ -161,7 +161,7 @@ function date_repeat_field_page($entity_type = 'node', $entity = NULL) {
   $bundle = date_get_entity_bundle($entity_type, $entity);
   $info = entity_get_info($entity_type);
   $key = $info['entity keys']['id'];
-  drupal_set_title(t('Repeats'));
+  backdrop_set_title(t('Repeats'));
   $entity->date_repeat_show_all = TRUE;
   $entity->content = array();
   $output = '';
@@ -171,7 +171,7 @@ function date_repeat_field_page($entity_type = 'node', $entity = NULL) {
         foreach ($bundles as $field_bundle) {
           if ($entity_type == $field_entity_type && $bundle == $field_bundle) {
             $data = field_view_field($entity_type, $entity, $field_name);
-            $output .= drupal_render($data);
+            $output .= backdrop_render($data);
           }
         }
       }
@@ -330,8 +330,8 @@ function date_repeat_field_widget_validate($element, &$form_state) {
   // Here 'values' returns an array of input values, which includes the original RRULE, as a string.
   // and 'input' returns an array of the form elements created by the repeating date widget, with
   // RRULE values as an array of the selected elements and their chosen values.
-  $item = drupal_array_get_nested_value($form_state['values'], $element['#parents'], $input_exists);
-  $input = drupal_array_get_nested_value($form_state['input'], $element['#parents'], $input_exists);
+  $item = backdrop_array_get_nested_value($form_state['values'], $element['#parents'], $input_exists);
+  $input = backdrop_array_get_nested_value($form_state['input'], $element['#parents'], $input_exists);
 
   $rrule_values = date_repeat_merge($input['rrule'], $element['rrule']);
 
@@ -397,7 +397,7 @@ function date_repeat_field_widget_validate($element, &$form_state) {
     if (!empty($rrule_values['UNTIL'])) {
       $gran = array('year', 'month', 'day', 'hour', 'minute', 'second');
       $rrule_values['UNTIL']['datetime'] .= ' 23:59:59';
-      $rrule_values['UNTIL']['granularity'] = serialize(drupal_map_assoc($gran));
+      $rrule_values['UNTIL']['granularity'] = serialize(backdrop_map_assoc($gran));
       $rrule_values['UNTIL']['all_day'] = 0;
     }
     $value = date_repeat_build_dates($rrule, $rrule_values, $field, $item);
@@ -416,12 +416,12 @@ function date_repeat_field_widget_validate($element, &$form_state) {
 function date_repeat_after_build(&$element, &$form_state) {
   foreach ($form_state['storage']['repeat_fields'] as $field_name => $parents) {
     // Remove unnecessary items in the form added by the Add more handling.
-    $value = drupal_array_get_nested_value($element, $parents);
+    $value = backdrop_array_get_nested_value($element, $parents);
     $langcode = $value['#language'];
     unset($value[$langcode]['add_more'], $value[$langcode]['#suffix'], $value[$langcode]['#prefix'], $value[$langcode][0]['_weight']);
     $value[$langcode]['#cardinality'] = 1;
     $value[$langcode]['#max_delta'] = 1;
-    drupal_array_set_nested_value($element, $parents, $value);
+    backdrop_array_set_nested_value($element, $parents, $value);
   }
   return $element;
 }
@@ -435,7 +435,7 @@ function date_repeat_after_build(&$element, &$form_state) {
 // @codingStandardsIgnoreStart
 function date_repeat_build_dates($rrule = NULL, $rrule_values = NULL, $field, $item) {
 // @codingStandardsIgnoreEnd
-  include_once DRUPAL_ROOT . '/' . drupal_get_path('module', 'date_api') . '/date_api_ical.inc';
+  include_once BACKDROP_ROOT . '/' . backdrop_get_path('module', 'date_api') . '/date_api_ical.inc';
   $field_name = $field['field_name'];
 
   if (empty($rrule)) {

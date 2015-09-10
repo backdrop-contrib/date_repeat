@@ -5,16 +5,8 @@
  * Test Date Repeat form.
  */
 
-class DateRepeatFormTestCase extends DrupalWebTestCase {
+class DateRepeatFormTestCase extends BackdropWebTestCase {
   protected $privileged_user;
-
-  public static function getInfo() {
-    return array(
-      'name' => t('Date Repeat Form'),
-      'description' => t('Test Date Repeat form.') ,
-      'group' => t('Date'),
-    );
-  }
 
   /**
    * Implements setUp().
@@ -24,19 +16,21 @@ class DateRepeatFormTestCase extends DrupalWebTestCase {
     parent::setUp('field', 'field_ui', 'date_api', 'date_repeat', 'date', 'date_popup', 'date_repeat_field');
 
     // Create and log in our privileged user.
-    $this->privileged_user = $this->drupalCreateUser(array(
+    $this->privileged_user = $this->backdropCreateUser(array(
       'administer content types', 'administer nodes', 'bypass node access', 'view date repeats'
     ));
-    $this->drupalLogin($this->privileged_user);
+    $this->backdropLogin($this->privileged_user);
 
-    variable_set('date_format_short', 'Y-m-d H:i');
+    $format = system_date_format_load('short');
+    $format['pattern'] = 'm/d/Y - H:i';
+    system_date_format_save($format);
   }
 
   public function testDateRepeatForm() {
     $edit = array();
     $edit['name'] = 'Date';
     $edit['type'] = 'date';
-    $this->drupalPost('admin/structure/types/add', $edit, t('Save content type'));
+    $this->backdropPost('admin/structure/types/add', $edit, t('Save content type'));
     $this->assertText('The content type Date has been added.', 'Content type added.');
     $display_all_day = FALSE;
 
@@ -431,7 +425,7 @@ class DateRepeatFormTestCase extends DrupalWebTestCase {
       }
     }
 
-    $this->drupalPost('node/add/date', $edit, t('Save'));
+    $this->backdropPost('node/add/date', $edit, t('Save'));
     $this->assertText($edit['body[und][0][value]'], 'Test node has been created');
 
     // Return the settings for later use in verification
@@ -440,15 +434,15 @@ class DateRepeatFormTestCase extends DrupalWebTestCase {
 
   function verifyDateForm($edit) {
     $title = $edit['title'];
-    $node = $this->drupalGetNodeByTitle($title);
+    $node = $this->backdropGetNodeByTitle($title);
 
-    $this->drupalGet("node/{$node->nid}/edit");
+    $this->backdropGet("node/{$node->nid}/edit");
 
     foreach ($edit as $field => $value) {
       $this->assertFieldByName($field, $value);
     }
 
-    $this->drupalPost("node/{$node->nid}/delete", NULL, t('Delete'));
+    $this->backdropPost("node/{$node->nid}/delete", NULL, t('Delete'));
     $this->assertRaw(t('Date %title has been deleted.', array('%title' => $title)), t('Deleted Date content.'));
   }
 
@@ -479,15 +473,15 @@ class DateRepeatFormTestCase extends DrupalWebTestCase {
     }
 
     // First step : 'Add new field' on the 'Manage fields' page.
-    $this->drupalPost('admin/structure/types/manage/date/fields', $edit, t('Save'));
+    $this->backdropPost('admin/structure/types/manage/date/fields', $edit, t('Save'));
     $this->assertRaw(t('These settings apply to the %label field everywhere it is used.', array('%label' => $label)), t('Field settings page was displayed.'));
 
     // Second step : 'Field settings' form.
-    $this->drupalPost(NULL, $field_edit, t('Save field settings'));
+    $this->backdropPost(NULL, $field_edit, t('Save field settings'));
     $this->assertRaw(t('Updated field %label field settings.', array('%label' => $label)), t('Redirected to instance and widget settings page.'));
 
     // Third step : 'Instance settings' form.
-    $this->drupalPost(NULL, $instance_edit, t('Save settings'));
+    $this->backdropPost(NULL, $instance_edit, t('Save settings'));
     $this->assertRaw(t('Saved %label configuration.', array('%label' => $label)), t('Redirected to "Manage fields" page.'));
 
     // Check that the field appears in the overview form.
@@ -495,9 +489,9 @@ class DateRepeatFormTestCase extends DrupalWebTestCase {
   }
 
   function deleteDateField() {
-    $this->drupalGet('admin/structure/types/manage/date/fields');
+    $this->backdropGet('admin/structure/types/manage/date/fields');
     $this->clickLink('delete');
-    $this->drupalPost(NULL, NULL, t('Delete'));
+    $this->backdropPost(NULL, NULL, t('Delete'));
     $this->assertText(t('The field Test has been deleted from the Date content type.'), t('Removed date field.'));
   }
 

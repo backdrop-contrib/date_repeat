@@ -137,7 +137,7 @@ function date_repeat_dow_day_untranslated() {
 function date_repeat_dow_day_options_ordered($weekdays) {
   $day_keys = array_keys($weekdays);
   $day_values = array_values($weekdays);
-  for ($i = 1; $i <= variable_get('date_first_day', 0); $i++) {
+  for ($i = 1; $i <= system_date_format_load('first_day'); $i++) {
     $last_key = array_shift($day_keys);
     array_push($day_keys, $last_key);
     $last_value = array_shift($day_values);
@@ -427,7 +427,7 @@ function date_repeat_form_element_radios_process($element) {
         $element['#default_value'] : NULL,
         '#attributes' => $element['#attributes'],
         '#parents' => $element['#parents'],
-        '#id' => drupal_html_id('edit-' . implode('-', $parents_for_id)),
+        '#id' => backdrop_html_id('edit-' . implode('-', $parents_for_id)),
         '#ajax' => isset($element['#ajax']) ? $element['ajax'] : NULL,
         '#weight' => $weight,
         '#theme_wrappers' => array(),
@@ -468,4 +468,16 @@ function date_repeat_form_element_radios_process($element) {
   }
 
   return $element;
+}
+
+
+/**
+ * Implements hook_autoload_info().
+ */
+function date_repeat_autoload_info()
+{
+    return array(
+        'DateRepeatTestCase' => 'tests/date_repeat.test',
+        'DateRepeatFormTestCase' => 'tests/date_repeat_form.test'
+    );
 }

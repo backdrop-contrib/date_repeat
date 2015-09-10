@@ -290,7 +290,7 @@ function _date_repeat_rrule_process($element, &$form_state, $form) {
     '#type' => 'select',
     '#title' => $bymonthday_title,
     '#default_value' => !empty($rrule['BYMONTHDAY']) && $rrule['FREQ'] === 'MONTHLY' ? $rrule['BYMONTHDAY'] : '',
-    '#options' => drupal_map_assoc(range(1, 31)) + drupal_map_assoc(range(-1, -31)),
+    '#options' => backdrop_map_assoc(range(1, 31)) + backdrop_map_assoc(range(-1, -31)),
     '#multiple' => FALSE,
     '#prefix' => '<div class="date-clear bymonthday">',
     '#suffix' => '</div>',
@@ -394,7 +394,7 @@ function _date_repeat_rrule_process($element, &$form_state, $form) {
     '#type' => 'select',
     '#title' => $bymonthday_title,
     '#default_value' => !empty($rrule['BYMONTHDAY']) && $rrule['FREQ'] === 'YEARLY' ? $rrule['BYMONTHDAY'] : '',
-    '#options' => drupal_map_assoc(range(1, 31)) + drupal_map_assoc(range(-1, -31)),
+    '#options' => backdrop_map_assoc(range(1, 31)) + backdrop_map_assoc(range(-1, -31)),
     '#multiple' => FALSE,
     '#prefix' => '<div class="date-clear bymonthday">',
     '#suffix' => '</div>',
@@ -734,7 +734,7 @@ function _date_repeat_rrule_process($element, &$form_state, $form) {
 function date_repeat_add_exception_callback($form, &$form_state) {
   $parents = $form_state['triggering_element']['#array_parents'];
   $button_key = array_pop($parents);
-  $element = drupal_array_get_nested_value($form, $parents);
+  $element = backdrop_array_get_nested_value($form, $parents);
   return $element;
 }
 
@@ -744,7 +744,7 @@ function date_repeat_add_exception_callback($form, &$form_state) {
 function date_repeat_add_addition_callback($form, &$form_state) {
   $parents = $form_state['triggering_element']['#array_parents'];
   $button_key = array_pop($parents);
-  $element = drupal_array_get_nested_value($form, $parents);
+  $element = backdrop_array_get_nested_value($form, $parents);
   return $element;
 }
 
@@ -974,7 +974,7 @@ function date_repeat_rrule_validate($element, &$form_state) {
 
   $parents = $element['#parents'];
   array_pop($parents);
-  $field_values = drupal_array_get_nested_value($form_state['values'], $parents);
+  $field_values = backdrop_array_get_nested_value($form_state['values'], $parents);
   if ($field_values['show_repeat_settings'] === 0 || $field_values['rrule']['FREQ'] === 'NONE') {
     form_set_value($element, NULL, $form_state);
     return;
@@ -991,7 +991,7 @@ function date_repeat_rrule_validate($element, &$form_state) {
 
   module_load_include('inc', 'date_api', 'date_api_ical');
 
-  $item = drupal_array_get_nested_value($form_state['values'], $element['#parents']);
+  $item = backdrop_array_get_nested_value($form_state['values'], $element['#parents']);
   $item = date_repeat_merge($item, $element);
   $rrule = date_api_ical_build_rrule($item);
   form_set_value($element, $rrule, $form_state);
@@ -1005,7 +1005,7 @@ function theme_date_repeat_current_exceptions($vars) {
   $rows_info = array();
   foreach ($rows as $key => $value) {
     if (substr($key, 0, 1) != '#') {
-      $rows_info[] = array(drupal_render($value['action']), drupal_render($value['display']));
+      $rows_info[] = array(backdrop_render($value['action']), backdrop_render($value['display']));
     }
   }
   return theme('table', array(
@@ -1021,7 +1021,7 @@ function theme_date_repeat_current_additions($rows = array()) {
   $rows_info = array();
   foreach ($rows as $key => $value) {
     if (substr($key, 0, 1) != '#') {
-      $rows_info[] = array(drupal_render($value['action']), drupal_render($value['display']));
+      $rows_info[] = array(backdrop_render($value['action']), backdrop_render($value['display']));
     }
   }
   return theme('table', array(
@@ -1035,15 +1035,9 @@ function theme_date_repeat_current_additions($rows = array()) {
  */
 function theme_date_repeat_rrule($vars) {
   $element = $vars['element'];
-  $id = drupal_html_id('repeat-settings-fieldset');
+  $id = backdrop_html_id('repeat-settings-fieldset');
   $parents = $element['#parents'];
-
-  $selector = $parents[0];
-  for ($i = 1; $i < count($parents) - 1; $i++) {
-    $selector .= '[' . $parents[$i] . ']';
-  }
-  $selector .= '[show_repeat_settings]';
-
+  $selector = "{$parents[0]}[{$parents[1]}][{$parents[2]}][show_repeat_settings]";
   $fieldset = array(
     '#type' => 'item',
     '#title' => t('Repeat settings'),
@@ -1057,7 +1051,7 @@ function theme_date_repeat_rrule($vars) {
     '#id' => $id,
   );
 
-  return drupal_render($fieldset);
+  return backdrop_render($fieldset);
 }
 
 /**

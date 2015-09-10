@@ -5,14 +5,7 @@
  * Test Date Repeat calculations.
  */
 
-class DateRepeatTestCase extends DrupalWebTestCase {
-  public static function getInfo() {
-    return array(
-      'name' => t('Date Repeat'),
-      'description' => t('Test Date Repeat functions to create arrays of dates from iCal rules.') ,
-      'group' => t('Date'),
-    );
-  }
+class DateRepeatTestCase extends BackdropWebTestCase {
 
   /**
    * Implements setUp().
@@ -23,8 +16,8 @@ class DateRepeatTestCase extends DrupalWebTestCase {
   }
 
   public function testDateRepeat() {
-    require_once('./' . drupal_get_path('module', 'date_api') . '/date_api_ical.inc');
-    require_once('./' . drupal_get_path('module', 'date_repeat') . '/date_repeat_calc.inc');
+    require_once('./' . backdrop_get_path('module', 'date_api') . '/date_api_ical.inc');
+    require_once('./' . backdrop_get_path('module', 'date_repeat') . '/date_repeat_calc.inc');
     // Examples adapted from http://www.faqs.org/rfcs/rfc2445.html and
     // http://www.kanzaki.com/docs/ical/rrule.html.
 
