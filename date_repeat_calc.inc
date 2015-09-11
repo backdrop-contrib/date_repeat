@@ -51,7 +51,7 @@ function _date_repeat_calc($rrule, $start, $end, $exceptions, $timezone, $additi
   }
 
   // Create a date object for the start and end dates.
-  $start_date = new DateObject($start, $timezone);
+  $start_date = new BackdropDateTime($start, $timezone);
 
   // Versions of PHP greater than PHP 5.3.5 require
   // that we set an explicit time when using date_modify()
@@ -62,7 +62,7 @@ function _date_repeat_calc($rrule, $start, $end, $exceptions, $timezone, $additi
 
   // If the rule has an UNTIL, see if that is earlier than the end date.
   if (!empty($rrule['UNTIL'])) {
-    $end_date = new DateObject($end, $timezone);
+    $end_date = new BackdropDateTime($end, $timezone);
     $until_date = date_ical_date($rrule['UNTIL'], $timezone);
     if (date_format($until_date, 'U') < date_format($end_date, 'U')) {
       $end_date = $until_date;
@@ -78,7 +78,7 @@ function _date_repeat_calc($rrule, $start, $end, $exceptions, $timezone, $additi
     }
   }
   else {
-    $end_date = new DateObject($end, $timezone);
+    $end_date = new BackdropDateTime($end, $timezone);
   }
 
   // Get an integer value for the interval, if none given, '1' is implied.
@@ -401,7 +401,7 @@ function _date_repeat_calc($rrule, $start, $end, $exceptions, $timezone, $additi
 
   // Add additional dates.
   foreach ($additions as $addition) {
-    $date = new dateObject($addition . ' ' . $start_date->format('H:i:s'), $timezone);
+    $date = new BackdropDateTime($addition . ' ' . $start_date->format('H:i:s'), $timezone);
     $days[] = date_format($date, DATE_FORMAT_DATETIME);
   }
 
@@ -541,7 +541,7 @@ function date_repeat_set_month_day($date_in, $day, $count = 1, $direction = '+',
     // reliably if we create a new object each time.
     $datetime = date_format($date_in, DATE_FORMAT_DATETIME);
     $datetime = substr_replace($datetime, '01', 8, 2);
-    $date = new DateObject($datetime, $timezone);
+    $date = new BackdropDateTime($datetime, $timezone);
     if ($direction == '-') {
       // For negative search, start from the end of the month.
       date_modify($date, '+1 month' . $modify_time);
@@ -589,7 +589,7 @@ function date_repeat_set_year_day($date_in, $month, $day, $count = 1, $direction
     $datetime = date_format($date_in, DATE_FORMAT_DATETIME);
     $month_key = isset($month) ? $month : '01';
     $datetime = substr_replace($datetime, $month_key . '-01', 5, 5);
-    $date = new DateObject($datetime, $timezone);
+    $date = new BackdropDateTime($datetime, $timezone);
 
     if (isset($month)) {
       if ($direction == '-') {

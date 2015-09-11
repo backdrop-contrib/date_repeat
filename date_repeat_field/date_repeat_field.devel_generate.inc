@@ -52,8 +52,8 @@ function date_repeat_field_date_field_insert(&$items, $context) {
       break;
   }
 
-  $start = new dateObject($item['value'], $timezone_db, $format);
-  $start2 = new dateObject($item['value2'], $timezone_db, $format);
+  $start = new BackdropDateTime($item['value'], $timezone_db, $format);
+  $start2 = new BackdropDateTime($item['value2'], $timezone_db, $format);
 
   // Create a repeating date rule.
   $duration = $start->difference($start2);

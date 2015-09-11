@@ -450,13 +450,13 @@ function date_repeat_build_dates($rrule = NULL, $rrule_values = NULL, $field, $i
   // things like '+1 Tuesday', so adjust back to localtime.
   $timezone = date_get_timezone($field['settings']['tz_handling'], $item['timezone']);
   $timezone_db = date_get_timezone_db($field['settings']['tz_handling']);
-  $start = new DateObject($item['value'], $timezone_db, date_type_format($field['type']));
+  $start = new BackdropDateTime($item['value'], $timezone_db, date_type_format($field['type']));
   $start->limitGranularity($field['settings']['granularity']);
   if ($timezone != $timezone_db) {
     date_timezone_set($start, timezone_open($timezone));
   }
   if (!empty($item['value2']) && $item['value2'] != $item['value']) {
-    $end = new DateObject($item['value2'], date_get_timezone_db($field['settings']['tz_handling']), date_type_format($field['type']));
+    $end = new BackdropDateTime($item['value2'], date_get_timezone_db($field['settings']['tz_handling']), date_type_format($field['type']));
     $end->limitGranularity($field['settings']['granularity']);
     date_timezone_set($end, timezone_open($timezone));
   }
@@ -500,7 +500,7 @@ function date_repeat_build_dates($rrule = NULL, $rrule_values = NULL, $field, $i
     // date_repeat_calc always returns DATE_DATETIME dates, which is
     // not necessarily $field['type'] dates.
     // Convert returned dates back to db timezone before storing.
-    $date_start = new DateObject($date, $timezone, DATE_FORMAT_DATETIME);
+    $date_start = new BackdropDateTime($date, $timezone, DATE_FORMAT_DATETIME);
     $date_start->limitGranularity($field['settings']['granularity']);
     date_timezone_set($date_start, timezone_open($timezone_db));
     $date_end = clone($date_start);

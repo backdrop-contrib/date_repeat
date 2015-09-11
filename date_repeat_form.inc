@@ -72,7 +72,7 @@ function _date_repeat_rrule_process($element, &$form_state, $form) {
 
   $until = '';
   if (!empty($merged_values['UNTIL']['datetime'])) {
-    $until_date = new DateObject($merged_values['UNTIL']['datetime'], $merged_values['UNTIL']['tz']);
+    $until_date = new BackdropDateTime($merged_values['UNTIL']['datetime'], $merged_values['UNTIL']['tz']);
     date_timezone_set($until_date, timezone_open($timezone));
     $until = date_format($until_date, DATE_FORMAT_DATETIME);
   }
@@ -590,7 +590,7 @@ function _date_repeat_rrule_process($element, &$form_state, $form) {
   for ($i = 0; $i < max($form_state['num_exceptions'][$instance], 1); $i++) {
     $except = '';
     if (!empty($exceptions[$i]['datetime'])) {
-      $ex_date = new DateObject($exceptions[$i]['datetime'], $exceptions[$i]['tz']);
+      $ex_date = new BackdropDateTime($exceptions[$i]['datetime'], $exceptions[$i]['tz']);
       date_timezone_set($ex_date, timezone_open($timezone));
       $except = date_format($ex_date, DATE_FORMAT_DATETIME);
     }
@@ -663,7 +663,7 @@ function _date_repeat_rrule_process($element, &$form_state, $form) {
   for ($i = 0; $i < max($form_state['num_additions'][$instance], 1); $i++) {
     $r_date = '';
     if (!empty($additions[$i]['datetime'])) {
-      $rdate = new DateObject($additions[$i]['datetime'], $additions[$i]['tz']);
+      $rdate = new BackdropDateTime($additions[$i]['datetime'], $additions[$i]['tz']);
       date_timezone_set($rdate, timezone_open($timezone));
       $r_date = date_format($rdate, DATE_FORMAT_DATETIME);
     }
