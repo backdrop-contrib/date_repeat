@@ -12,12 +12,12 @@ class DateRepeatTestCase extends BackdropWebTestCase {
    */
   public function setUp() {
     // Load the date_repeat module.
-    parent::setUp('date_repeat');
+    parent::setUp('date','date_repeat');
   }
 
   public function testDateRepeat() {
-    require_once('./' . backdrop_get_path('module', 'date_repeat') . 'includes/date_api_ical.inc');
-    require_once('./' . backdrop_get_path('module', 'date_repeat') . 'includes/date_repeat_calc.inc');
+    require_once('./' . backdrop_get_path('module', 'date_repeat') . '/includes/date_api_ical.inc');
+    require_once('./' . backdrop_get_path('module', 'date_repeat') . '/includes/date_repeat_calc.inc');
     // Examples adapted from http://www.faqs.org/rfcs/rfc2445.html and
     // http://www.kanzaki.com/docs/ical/rrule.html.
 
