@@ -634,3 +634,23 @@ function date_repeat_set_year_day($date_in, $month, $day, $count = 1, $direction
   }
   return $date_in;
 }
+
+
+/**
+ * Creates an array of ordered strings, using English text when possible.
+ * Previously in date_api.module
+ */
+function date_order() {
+    return array(
+        '+1' => 'First',
+        '+2' => 'Second',
+        '+3' => 'Third',
+        '+4' => 'Fourth',
+        '+5' => 'Fifth',
+        '-1' => 'Last',
+        '-2' => '-2',
+        '-3' => '-3',
+        '-4' => '-4',
+        '-5' => '-5',
+    );
+}
