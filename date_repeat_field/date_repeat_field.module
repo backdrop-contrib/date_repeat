@@ -750,3 +750,25 @@ function date_repeat_field_date_field_formatter_settings_summary_alter(&$summary
     }
   }
 }
+
+/**
+ * Helper function to figure out the bundle name for an entity.
+ * From original Drupal date.module
+ */
+function date_get_entity_bundle($entity_type, $entity) {
+  switch ($entity_type) {
+    case 'field_collection_item':
+      $bundle = $entity->field_name;
+      break;
+
+    default:
+      $bundle = field_extract_bundle($entity_type, $entity);
+      break;
+  }
+  // If there is no bundle name, field_info() uses the entity name as the bundle
+  // name in its arrays.
+  if (empty($bundle)) {
+    $bundle = $entity_type;
+  }
+  return $bundle;
+}
