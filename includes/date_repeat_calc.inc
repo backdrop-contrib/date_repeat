@@ -31,7 +31,7 @@
  * Compute dates that match the requested rule, within a specified date range.
  */
 function _date_repeat_calc($rrule, $start, $end, $exceptions, $timezone, $additions) {
-  module_load_include('inc', 'date_api', 'date_api_ical');
+  module_load_include('inc', 'date_repeat', 'includes/date_api_ical');
 
   if (empty($timezone)) {
     $timezone = date_default_timezone();

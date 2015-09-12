@@ -209,8 +209,8 @@ function date_repeat_rrule_description($rrule, $format = 'D M d Y') {
     return;
   }
 
-  module_load_include('inc', 'date_api', 'date_api_ical');
-  module_load_include('inc', 'date_repeat', 'date_repeat_calc');
+  module_load_include('inc', 'date_repeat', 'includes/date_api_ical');
+  module_load_include('inc', 'date_repeat', 'includes/date_repeat_calc');
 
   $parts = date_repeat_split_rrule($rrule);
   $additions = $parts[2];
@@ -383,7 +383,7 @@ function date_repeat_split_rrule($rrule) {
  * Analyze a RRULE and return dates that match it.
  */
 function date_repeat_calc($rrule, $start, $end, $exceptions = array(), $timezone = NULL, $additions = array()) {
-  module_load_include('inc', 'date_repeat', 'date_repeat_calc');
+  module_load_include('inc', 'date_repeat', 'includes/date_repeat_calc');
   return _date_repeat_calc($rrule, $start, $end, $exceptions, $timezone, $additions);
 }
 
@@ -391,7 +391,7 @@ function date_repeat_calc($rrule, $start, $end, $exceptions = array(), $timezone
  * Generate the repeat rule setting form.
  */
 function date_repeat_rrule_process($element, &$form_state, $form) {
-  module_load_include('inc', 'date_repeat', 'date_repeat_form');
+  module_load_include('inc', 'date_repeat', 'includes/date_repeat_form');
   return _date_repeat_rrule_process($element, $form_state, $form);
 }
 

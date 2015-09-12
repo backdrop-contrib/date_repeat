@@ -46,7 +46,7 @@ function _date_repeat_rrule_process($element, &$form_state, $form) {
     return $element;
   }
 
-  module_load_include('inc', 'date_api', 'date_api_ical');
+    module_load_include('inc', 'date_repeat', 'includes/date_api_ical');
   if (empty($element['#date_repeat_widget'])) {
     $element['#date_repeat_widget'] = module_exists('date_popup') ? 'date_popup' : 'date_select';
   }
@@ -989,7 +989,7 @@ function date_repeat_rrule_validate($element, &$form_state) {
     }
   }
 
-  module_load_include('inc', 'date_api', 'date_api_ical');
+  module_load_include('inc', 'date_repeat', 'includes/date_api_ical');
 
   $item = backdrop_array_get_nested_value($form_state['values'], $element['#parents']);
   $item = date_repeat_merge($item, $element);
