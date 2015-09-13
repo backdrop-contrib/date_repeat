@@ -135,17 +135,13 @@ function date_repeat_field_show($entity_type = 'node', $entity = NULL) {
 
   $bundle = date_get_entity_bundle($entity_type, $entity);
 
-  // In Drupal 7.22 the field_info_field_map() function was added, which is more
-  // memory-efficient in certain cases than field_info_fields().
-  // @see https://drupal.org/node/1915646
-  $field_map_available = version_compare(VERSION, '7.22', '>=');
-  $field_list = $field_map_available ? field_info_field_map() : field_info_fields();
+  $field_list = field_info_fields();
 
   foreach ($field_list as $field_name => $data) {
     if (in_array($data['type'], array('date', 'datestamp', 'datetime'))
         && array_key_exists($entity_type, $data['bundles'])
         && in_array($bundle, $data['bundles'][$entity_type])) {
-      $field_info = $field_map_available ? field_info_field($field_name) : $data;
+      $field_info = field_info_field($field_name);
       if (date_is_repeat_field($field_info)) {
         return TRUE;
       }
