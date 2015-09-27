@@ -1,5 +1,8 @@
 name = Date Repeat API
 description = A Date Repeat API to calculate repeating dates and times from iCal rules.
+dependencies[] = date
 package = Date/Time
 backdrop = 1.x
 php = 5.2
+stylesheets[all][] = css/date_repeat.css
+stylesheets[all][] = css/date_repeat_field.css
