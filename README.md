@@ -31,7 +31,7 @@ This project is GPL v2 software. See the LICENSE.txt file in this directory for 
 
 ### For Backdrop:
 
-+ no current maintainer
++ [Laryn Kragt Bakker](https://github.com/laryn) - [CEDC.org](https://cedc.org)
  
 
 ### Port to Backdrop:
