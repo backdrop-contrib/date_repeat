@@ -141,11 +141,11 @@ function _date_repeat_rrule_process($element, &$form_state, $form) {
 
   list($prefix, $suffix) = explode('@interval', t('Every @interval days', array(), array('context' => 'Date repeat')));
   $daily_interval = array(
-    '#type' => 'textfield',
+    '#type' => 'number',
     '#title' => t('Repeats', array(), array('context' => 'Date repeat')),
     '#title_display' => 'invisible',
     '#default_value' => (!empty($rrule['INTERVAL']) ? $rrule['INTERVAL'] : 1),
-    '#element_validate' => array('form_validate_number'),
+    '#min' => 0,
     '#attributes' => array('placeholder' => array('#')),
     '#size' => 3,
     '#maxlength' => 3,
@@ -157,10 +157,10 @@ function _date_repeat_rrule_process($element, &$form_state, $form) {
 
   list($prefix, $suffix) = explode('@interval', t('Every @interval weeks', array(), array('context' => 'Date repeat')));
   $element['weekly']['INTERVAL'] = array(
-    '#type' => 'textfield',
+    '#type' => 'number',
     '#title' => t('Repeats', array(), array('context' => 'Date repeat')),
     '#default_value' => (!empty($rrule['INTERVAL']) ? $rrule['INTERVAL'] : 1),
-    '#element_validate' => array('form_validate_number'),
+    '#min' => 0,
     '#attributes' => array('placeholder' => array('#')),
     '#size' => 3,
     '#maxlength' => 3,
@@ -173,10 +173,10 @@ function _date_repeat_rrule_process($element, &$form_state, $form) {
   list($prefix, $suffix) = explode('@interval', t('Every @interval months', array(), array('context' => 'Date repeat')));
   $element['monthly']['INTERVAL'] = array(
     '#access' => FALSE,
-    '#type' => 'textfield',
+    '#type' => 'number',
     '#title' => t('Repeats', array(), array('context' => 'Date repeat')),
     '#default_value' => (!empty($rrule['INTERVAL']) ? $rrule['INTERVAL'] : 1),
-    '#element_validate' => array('form_validate_number'),
+    '#min' => 0,
     '#attributes' => array('placeholder' => array('#')),
     '#size' => 3,
     '#maxlength' => 3,
@@ -188,10 +188,10 @@ function _date_repeat_rrule_process($element, &$form_state, $form) {
 
   list($prefix, $suffix) = explode('@interval', t('Every @interval years', array(), array('context' => 'Date repeat')));
   $element['yearly']['INTERVAL'] = array(
-    '#type' => 'textfield',
+    '#type' => 'number',
     '#title' => t('Repeats', array(), array('context' => 'Date repeat')),
     '#default_value' => (!empty($rrule['INTERVAL']) ? $rrule['INTERVAL'] : 1),
-    '#element_validate' => array('form_validate_number'),
+    '#min' => 0,
     '#attributes' => array('placeholder' => array('#')),
     '#size' => 3,
     '#maxlength' => 3,
@@ -485,10 +485,10 @@ function _date_repeat_rrule_process($element, &$form_state, $form) {
 
   list($prefix, $suffix) = explode('@count', t('After @count occurrences', array(), array('context' => 'Date repeat')));
   $count_form_element = array(
-    '#type' => 'textfield',
+    '#type' => 'number',
     '#title' => t('Count', array(), array('context' => 'Date repeat')),
     '#default_value' => $count,
-    '#element_validate' => array('form_validate_number'),
+    '#min' => 0,
     '#attributes' => array('placeholder' => array('#')),
     '#prefix' => $prefix,
     '#suffix' => $suffix,
