@@ -326,7 +326,7 @@ function _date_repeat_rrule_process($element, &$form_state, $form) {
     '#type' => 'select',
     '#title' => $byday_count_title,
     '#default_value' => !empty($monthly_byday_count) ? $monthly_byday_count : '',
-    '#options' => date_order_translated(),
+    '#options' => date_repeat_order_translated(),
     '#multiple' => FALSE,
     '#prefix' => '<div class="date-repeat-input byday-count">',
     '#suffix' => '</div>',
@@ -430,7 +430,7 @@ function _date_repeat_rrule_process($element, &$form_state, $form) {
     '#type' => 'select',
     '#title' => $byday_count_title,
     '#default_value' => !empty($yearly_byday_count) ? $yearly_byday_count : '',
-    '#options' => date_order_translated(),
+    '#options' => date_repeat_order_translated(),
     '#multiple' => FALSE,
     '#prefix' => '<div class="date-repeat-input byday-count">',
     '#suffix' => '</div>',
@@ -1069,24 +1069,4 @@ function date_repeat_filter_non_zero_value($value) {
  */
 function date_repeat_transform_checkbox_values_to_select_values($values) {
   return array_filter($values, 'date_repeat_filter_non_zero_value');
-}
-
-
-/**
- * Helper function for converting back and forth from '+1' to 'First'.
- * This was in date_api.module in Drupal
- */
-function date_order_translated() {
-    return array(
-        '+1' => t('First', array(), array('context' => 'date_order')),
-        '+2' => t('Second', array(), array('context' => 'date_order')),
-        '+3' => t('Third', array(), array('context' => 'date_order')),
-        '+4' => t('Fourth', array(), array('context' => 'date_order')),
-        '+5' => t('Fifth', array(), array('context' => 'date_order')),
-        '-1' => t('Last', array(), array('context' => 'date_order_reverse')),
-        '-2' => t('Next to last', array(), array('context' => 'date_order_reverse')),
-        '-3' => t('Third from last', array(), array('context' => 'date_order_reverse')),
-        '-4' => t('Fourth from last', array(), array('context' => 'date_order_reverse')),
-        '-5' => t('Fifth from last', array(), array('context' => 'date_order_reverse')),
-    );
 }

@@ -558,7 +558,7 @@ function date_repeat_set_month_day($date_in, $day, $count = 1, $direction = '+',
     else {
       // Use the English text for order, like First Sunday
       // instead of +1 Sunday to overcome PHP5 bug, (see #369020).
-      $order = date_order();
+      $order = date_repeat_order();
       $step = $count <= 5 ? $order[$direction . $count] : $count;
       date_modify($date, $step . ' ' . $day . $modify_time);
     }
@@ -622,7 +622,7 @@ function date_repeat_set_year_day($date_in, $month, $day, $count = 1, $direction
     else {
       // Use the English text for order, like First Sunday
       // instead of +1 Sunday to overcome PHP5 bug, (see #369020).
-      $order = date_order();
+      $order = date_repeat_order();
       $step = $count <= 5 ? $order[$direction . $count] : $count;
       date_modify($date, $step . ' ' . $day . $modify_time);
     }
@@ -633,24 +633,4 @@ function date_repeat_set_year_day($date_in, $month, $day, $count = 1, $direction
     }
   }
   return $date_in;
-}
-
-
-/**
- * Creates an array of ordered strings, using English text when possible.
- * Previously in date_api.module
- */
-function date_order() {
-    return array(
-        '+1' => 'First',
-        '+2' => 'Second',
-        '+3' => 'Third',
-        '+4' => 'Fourth',
-        '+5' => 'Fifth',
-        '-1' => 'Last',
-        '-2' => '-2',
-        '-3' => '-3',
-        '-4' => '-4',
-        '-5' => '-5',
-    );
 }

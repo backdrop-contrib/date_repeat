@@ -133,7 +133,7 @@ function date_repeat_field_show($entity_type = 'node', $entity = NULL) {
     return FALSE;
   }
 
-  $bundle = date_repeat_field_get_entity_bundle($entity_type, $entity);
+  $bundle = date_repeat_get_entity_bundle($entity_type, $entity);
 
   $field_list = field_info_fields();
 
@@ -154,7 +154,7 @@ function date_repeat_field_show($entity_type = 'node', $entity = NULL) {
  * A page to list all values for a repeating date.
  */
 function date_repeat_field_page($entity_type = 'node', $entity = NULL) {
-  $bundle = date_repeat_field_get_entity_bundle($entity_type, $entity);
+  $bundle = date_repeat_get_entity_bundle($entity_type, $entity);
   $info = entity_get_info($entity_type);
   $key = $info['entity keys']['id'];
   backdrop_set_title(t('Repeats'));
@@ -285,7 +285,7 @@ function date_repeat_field_field_widget_form_alter(&$element, &$form_state, $con
       if (!empty($instance['widget']['settings']['no_fieldset'])) {
         $element['#title'] = check_plain($instance['label']);
         $element['#description'] = field_filter_xss($instance['description']);
-        $element['#theme_wrappers'] = array('date_form_element');
+        $element['#theme_wrappers'] = array('date_repeat_form_element');
       }
     }
   }
@@ -745,26 +745,4 @@ function date_repeat_field_date_field_formatter_settings_summary_alter(&$summary
       $summary[] = t('Hide repeat rule');
     }
   }
-}
-
-/**
- * Helper function to figure out the bundle name for an entity.
- * From original Drupal date.module
- */
-function date_repeat_field_get_entity_bundle($entity_type, $entity) {
-  switch ($entity_type) {
-    case 'field_collection_item':
-      $bundle = $entity->field_name;
-      break;
-
-    default:
-      $bundle = field_extract_bundle($entity_type, $entity);
-      break;
-  }
-  // If there is no bundle name, field_info() uses the entity name as the bundle
-  // name in its arrays.
-  if (empty($bundle)) {
-    $bundle = $entity_type;
-  }
-  return $bundle;
 }

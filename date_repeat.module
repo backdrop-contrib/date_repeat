@@ -151,7 +151,7 @@ function date_repeat_dow_day_options_ordered($weekdays) {
  * Helper function for BYDAY options.
  */
 function date_repeat_dow_count_options() {
-  return array('' => t('Every', array(), array('context' => 'date_order'))) + date_order_translated();
+  return array('' => t('Every', array(), array('context' => 'date_order'))) + date_repeat_order_translated();
 }
 
 /**
@@ -470,7 +470,6 @@ function date_repeat_form_element_radios_process($element) {
   return $element;
 }
 
-
 /**
  * Implements hook_autoload_info().
  */
@@ -480,4 +479,192 @@ function date_repeat_autoload_info()
         'DateRepeatTestCase' => 'tests/date_repeat.test',
         'DateRepeatFormTestCase' => 'tests/date_repeat_form.test'
     );
+}
+
+/**
+ ****************************************************************************
+ * Helper functions below replicated from the date_api module since they were
+ * not included in the date module when added to Backdrop core.
+ ****************************************************************************
+ */
+
+/**
+ * For converting back and forth from '+1' to 'First'.
+ * Originally date_order_translated().
+ */
+function date_repeat_order_translated() {
+    return array(
+        '+1' => t('First', array(), array('context' => 'date_order')),
+        '+2' => t('Second', array(), array('context' => 'date_order')),
+        '+3' => t('Third', array(), array('context' => 'date_order')),
+        '+4' => t('Fourth', array(), array('context' => 'date_order')),
+        '+5' => t('Fifth', array(), array('context' => 'date_order')),
+        '-1' => t('Last', array(), array('context' => 'date_order_reverse')),
+        '-2' => t('Next to last', array(), array('context' => 'date_order_reverse')),
+        '-3' => t('Third from last', array(), array('context' => 'date_order_reverse')),
+        '-4' => t('Fourth from last', array(), array('context' => 'date_order_reverse')),
+        '-5' => t('Fifth from last', array(), array('context' => 'date_order_reverse')),
+    );
+}
+
+/**
+ * Creates an array of ordered strings, using English text when possible.
+ * Originally date_order().
+ */
+function date_repeat_order() {
+    return array(
+        '+1' => 'First',
+        '+2' => 'Second',
+        '+3' => 'Third',
+        '+4' => 'Fourth',
+        '+5' => 'Fifth',
+        '-1' => 'Last',
+        '-2' => '-2',
+        '-3' => '-3',
+        '-4' => '-4',
+        '-5' => '-5',
+    );
+}
+
+/**
+ * Function to figure out the bundle name for an entity.
+ * Originally date_get_entity_bundle().
+ */
+function date_repeat_get_entity_bundle($entity_type, $entity) {
+  switch ($entity_type) {
+    case 'field_collection_item':
+      $bundle = $entity->field_name;
+      break;
+
+    default:
+      $bundle = field_extract_bundle($entity_type, $entity);
+      break;
+  }
+  // If there is no bundle name, field_info() uses the entity name as the bundle
+  // name in its arrays.
+  if (empty($bundle)) {
+    $bundle = $entity_type;
+  }
+  return $bundle;
+}
+
+/**
+ * Create replacement values for deprecated timezone names.
+ * Originally _date_timezone_replacement().
+ */
+function _date_repeat_timezone_replacement($old) {
+  $replace = array(
+    'Brazil/Acre' => 'America/Rio_Branco',
+    'Brazil/DeNoronha' => 'America/Noronha',
+    'Brazil/East' => 'America/Recife',
+    'Brazil/West' => 'America/Manaus',
+    'Canada/Atlantic' => 'America/Halifax',
+    'Canada/Central' => 'America/Winnipeg',
+    'Canada/East-Saskatchewan' => 'America/Regina',
+    'Canada/Eastern' => 'America/Toronto',
+    'Canada/Mountain' => 'America/Edmonton',
+    'Canada/Newfoundland' => 'America/St_Johns',
+    'Canada/Pacific' => 'America/Vancouver',
+    'Canada/Saskatchewan' => 'America/Regina',
+    'Canada/Yukon' => 'America/Whitehorse',
+    'CET' => 'Europe/Berlin',
+    'Chile/Continental' => 'America/Santiago',
+    'Chile/EasterIsland' => 'Pacific/Easter',
+    'CST6CDT' => 'America/Chicago',
+    'Cuba' => 'America/Havana',
+    'EET' => 'Europe/Bucharest',
+    'Egypt' => 'Africa/Cairo',
+    'Eire' => 'Europe/Belfast',
+    'EST' => 'America/New_York',
+    'EST5EDT' => 'America/New_York',
+    'GB' => 'Europe/London',
+    'GB-Eire' => 'Europe/Belfast',
+    'Etc/GMT' => 'UTC',
+    'Etc/GMT+0' => 'UTC',
+    'Etc/GMT+1' => 'UTC',
+    'Etc/GMT+10' => 'UTC',
+    'Etc/GMT+11' => 'UTC',
+    'Etc/GMT+12' => 'UTC',
+    'Etc/GMT+2' => 'UTC',
+    'Etc/GMT+3' => 'UTC',
+    'Etc/GMT+4' => 'UTC',
+    'Etc/GMT+5' => 'UTC',
+    'Etc/GMT+6' => 'UTC',
+    'Etc/GMT+7' => 'UTC',
+    'Etc/GMT+8' => 'UTC',
+    'Etc/GMT+9' => 'UTC',
+    'Etc/GMT-0' => 'UTC',
+    'Etc/GMT-1' => 'UTC',
+    'Etc/GMT-10' => 'UTC',
+    'Etc/GMT-11' => 'UTC',
+    'Etc/GMT-12' => 'UTC',
+    'Etc/GMT-13' => 'UTC',
+    'Etc/GMT-14' => 'UTC',
+    'Etc/GMT-2' => 'UTC',
+    'Etc/GMT-3' => 'UTC',
+    'Etc/GMT-4' => 'UTC',
+    'Etc/GMT-5' => 'UTC',
+    'Etc/GMT-6' => 'UTC',
+    'Etc/GMT-7' => 'UTC',
+    'Etc/GMT-8' => 'UTC',
+    'Etc/GMT-9' => 'UTC',
+    'Etc/GMT0' => 'UTC',
+    'Etc/Greenwich' => 'UTC',
+    'Etc/UCT' => 'UTC',
+    'Etc/Universal' => 'UTC',
+    'Etc/UTC' => 'UTC',
+    'Etc/Zulu' => 'UTC',
+    'Factory' => 'UTC',
+    'GMT' => 'UTC',
+    'GMT+0' => 'UTC',
+    'GMT-0' => 'UTC',
+    'GMT0' => 'UTC',
+    'Hongkong' => 'Asia/Hong_Kong',
+    'HST' => 'Pacific/Honolulu',
+    'Iceland' => 'Atlantic/Reykjavik',
+    'Iran' => 'Asia/Tehran',
+    'Israel' => 'Asia/Tel_Aviv',
+    'Jamaica' => 'America/Jamaica',
+    'Japan' => 'Asia/Tokyo',
+    'Kwajalein' => 'Pacific/Kwajalein',
+    'Libya' => 'Africa/Tunis',
+    'MET' => 'Europe/Budapest',
+    'Mexico/BajaNorte' => 'America/Tijuana',
+    'Mexico/BajaSur' => 'America/Mazatlan',
+    'Mexico/General' => 'America/Mexico_City',
+    'MST' => 'America/Boise',
+    'MST7MDT' => 'America/Boise',
+    'Navajo' => 'America/Phoenix',
+    'NZ' => 'Pacific/Auckland',
+    'NZ-CHAT' => 'Pacific/Chatham',
+    'Poland' => 'Europe/Warsaw',
+    'Portugal' => 'Europe/Lisbon',
+    'PRC' => 'Asia/Chongqing',
+    'PST8PDT' => 'America/Los_Angeles',
+    'ROC' => 'Asia/Taipei',
+    'ROK' => 'Asia/Seoul',
+    'Singapore' => 'Asia/Singapore',
+    'Turkey' => 'Europe/Istanbul',
+    'US/Alaska' => 'America/Anchorage',
+    'US/Aleutian' => 'America/Adak',
+    'US/Arizona' => 'America/Phoenix',
+    'US/Central' => 'America/Chicago',
+    'US/East-Indiana' => 'America/Indianapolis',
+    'US/Eastern' => 'America/New_York',
+    'US/Hawaii' => 'Pacific/Honolulu',
+    'US/Indiana-Starke' => 'America/Indiana/Knox',
+    'US/Michigan' => 'America/Detroit',
+    'US/Mountain' => 'America/Boise',
+    'US/Pacific' => 'America/Los_Angeles',
+    'US/Pacific-New' => 'America/Los_Angeles',
+    'US/Samoa' => 'Pacific/Samoa',
+    'W-SU' => 'Europe/Moscow',
+    'WET' => 'Europe/Paris',
+  );
+  if (array_key_exists($old, $replace)) {
+    return $replace[$old];
+  }
+  else {
+    return $old;
+  }
 }
