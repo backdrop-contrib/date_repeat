@@ -25,7 +25,7 @@ function date_repeat_element_info() {
   $type['date_repeat_form_element_radios'] = array(
     '#input' => TRUE,
     '#process' => array('date_repeat_form_element_radios_process'),
-    '#theme_wrappers' => array('radios'),
+    '#theme_wrappers' => array('container__radios'),
     '#pre_render' => array('form_pre_render_conditional_form_element'),
   );
   if (module_exists('ctools')) {
@@ -38,11 +38,20 @@ function date_repeat_element_info() {
  * Implements hook_theme().
  */
 function date_repeat_theme() {
-  return array(
+  $path = backdrop_get_path('module', 'date_repeat');
+  module_load_include('inc', 'date_repeat_field', 'date_repeat.theme');
+
+  $base = array(
+    'file' => 'date_repeat.theme.inc',
+    'path' => "$path",
+  );
+  $themes = array(
     'date_repeat_current_exceptions' => array('render element' => 'element'),
     'date_repeat_current_additions' => array('render element' => 'element'),
     'date_repeat_rrule' => array('render element' => 'element'),
+    'date_repeat_form_element' => $base + array('render element' => 'element'),
   );
+  return $themes;
 }
 
 /**
