@@ -1,6 +1,8 @@
 name = Date Repeat Field
-description = Creates the option of Repeating date fields and manages Date fields that use the Date Repeat API.
-dependencies[] = date
-dependencies[] = date_repeat
+description = Creates the option of repeating date fields and manages date fields that use the Date Repeat API.
 package = Date/Time
 backdrop = 1.x
+type = module
+
+dependencies[] = date
+dependencies[] = date_repeat
