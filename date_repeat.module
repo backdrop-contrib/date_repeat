@@ -28,9 +28,6 @@ function date_repeat_element_info() {
     '#theme_wrappers' => array('container__radios'),
     '#pre_render' => array('form_pre_render_conditional_form_element'),
   );
-  if (module_exists('ctools')) {
-    $type['date_repeat_rrule']['#pre_render'] = array('ctools_dependent_pre_render');
-  }
   return $type;
 }
 
@@ -39,7 +36,7 @@ function date_repeat_element_info() {
  */
 function date_repeat_theme() {
   $path = backdrop_get_path('module', 'date_repeat');
-  module_load_include('inc', 'date_repeat_field', 'date_repeat.theme');
+  module_load_include('inc', 'date_repeat', 'date_repeat.theme');
 
   $base = array(
     'file' => 'date_repeat.theme.inc',

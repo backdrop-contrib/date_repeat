@@ -155,16 +155,19 @@ function theme_date_repeat_repeat_display_combination($variables) {
   // Check remaining days.
   $show_remaining_days = '';
   if (!empty($variables['show_remaining_days'])) {
-    $remaining_days = floor((strtotime($variables['dates']['value']['formatted_iso'])
-    - strtotime('now')) / (24 * 3600));
-
+    // Create a date object from the timestamp.
+    $date = new DateTime('@' . strtotime($variables['dates']['value']['formatted_iso']));
+    // Using date_diff()->days allows to get the days diff, without having to
+    // use complex math to calculate it. It also takes into account leap years.
+    $remaining_days = date_diff($date, date_now())->days;
     // Show remaining days only for future events.
-    if ($remaining_days >= 0) {
+    if ($date->format('U') > REQUEST_TIME) {
       $show_remaining_days = theme('date_display_remaining', array(
         'remaining_days' => $remaining_days,
       ));
     }
   }
+
 
   // No date values, display nothing.
   if (empty($date1) && empty($date2)) {
@@ -204,7 +207,7 @@ function theme_date_repeat_repeat_display_combination($variables) {
       'microdata' => $microdata,
       'add_microdata' => $add_microdata,
       'dates' => $dates,
-      'show_remaining_days' => $show_remaining_days,
+      'show_remaining_days' => '',
     ));
     $replaced = str_replace($time1, $time, $date1);
     $output .= theme('date_display_single', array(
@@ -214,6 +217,7 @@ function theme_date_repeat_repeat_display_combination($variables) {
       'rdf_mapping' => array(),
       'add_rdf' => FALSE,
       'dates' => $dates,
+      'show_remaining_days' => $show_remaining_days,
     ));
   }
 
@@ -241,7 +245,6 @@ function theme_date_repeat_repeat_display_combination($variables) {
  */
 function theme_date_repeat_form_element($variables) {
   $element = &$variables['element'];
-
   // Detect whether element is multiline.
   $count = preg_match_all('`<(?:div|span)\b[^>]* class="[^"]*\b(?:date-no-float|date-clear)\b`', $element['#children'], $matches, PREG_OFFSET_CAPTURE);
   $multiline = FALSE;

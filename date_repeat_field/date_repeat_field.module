@@ -405,11 +405,41 @@ function date_repeat_field_widget_validate($element, &$form_state) {
 }
 
 /**
+ * Implements hook_field_widget_form_alter().
+ *
+ */
+function date_repeat_field_widget_form_alter(&$form, &$form_state, $context) {
+  // @todo Repeating dates should probably be made into their own field type
+  // and completely separated out. That will have to wait for a new branch
+  // since it may break other things, including other modules that have an
+  // expectation of what the date field types are. Since repeating dates cannot
+  // use the default Add more button, we have to handle our own behaviors here.
+  // Return only the first multiple value for repeating dates, then clean up
+  // the 'Add more' bits in #after_build. The repeating values will be
+  // re-generated when the repeat widget form is validated. At this point we
+  // can't tell if this form element is going to be hidden by #access, and
+  // we're going to lose all but the first value by doing this, so store the
+  // original values in case we need to replace them later.
+  $field_name = $context['field']['field_name'];
+  $langcode = $context['langcode'];
+  if (!empty($context['field']['settings']['repeat'])) {
+    if ($context['delta'] == 0) {
+      $form['#after_build'][] = 'date_repeat_field_after_build';
+      $form_state['storage']['repeat_fields'][$field_name] = array_merge($form['#field_parents'], array($field_name));
+      $form_state['storage']['date_items'][$field_name][$langcode] = $context['items'];
+    }
+    else {
+      return;
+    }
+  }
+}
+
+/**
  * Implements the form after_build().
  *
  * Remove the 'Add more' elements from a repeating date form.
  */
-function date_repeat_after_build(&$element, &$form_state) {
+function date_repeat_field_after_build($element, &$form_state) {
   foreach ($form_state['storage']['repeat_fields'] as $field_name => $parents) {
     // Remove unnecessary items in the form added by the Add more handling.
     $value = backdrop_array_get_nested_value($element, $parents);
@@ -605,11 +635,9 @@ function date_repeat_field_field_widget_info_alter(&$info) {
   $info['date_select']['settings'] += array(
     'repeat_collapsed' => 0,
   );
-  if (module_exists('date_popup')) {
-    $info['date_popup']['settings'] += array(
-      'repeat_collapsed' => 0,
-    );
-  }
+  $info['date_popup']['settings'] += array(
+    'repeat_collapsed' => 0,
+  );
 }
 
 /**
@@ -618,7 +646,6 @@ function date_repeat_field_field_widget_info_alter(&$info) {
  * This hook lets us alter the field settings form.
  */
 function date_repeat_field_date_field_settings_form_alter(&$form, $context) {
-
   $field = $context['field'];
   $instance = $context['instance'];
   $has_data = $context['has_data'];
@@ -678,7 +705,6 @@ function date_repeat_field_date_field_instance_settings_form_alter(&$form, $cont
  * This hook lets us alter the field widget settings form.
  */
 function date_repeat_field_date_field_widget_settings_form_alter(&$form, $context) {
-
   $field = $context['field'];
   $instance = $context['instance'];
 
@@ -703,7 +729,6 @@ function date_repeat_field_date_field_widget_settings_form_alter(&$form, $contex
  * This hook lets us alter the field formatter settings form.
  */
 function date_repeat_field_date_field_formatter_settings_form_alter(&$form, &$form_state, $context) {
-
   $field = $context['field'];
   $instance = $context['instance'];
   $view_mode = $context['view_mode'];

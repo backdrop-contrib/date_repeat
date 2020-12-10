@@ -41,14 +41,14 @@ function _date_repeat_rrule_process($element, &$form_state, $form) {
   // The Date field module is not adding this element to forms
   // if the field is hidden,
   // this test is just in case some other module attempts to do so.
-
+  
   if (date_hidden_element($element)) {
     return $element;
   }
 
-    module_load_include('inc', 'date_repeat', 'includes/date_api_ical');
+  module_load_include('inc', 'date_repeat', 'includes/date_api_ical');
   if (empty($element['#date_repeat_widget'])) {
-    $element['#date_repeat_widget'] = module_exists('date_popup') ? 'date_popup' : 'date_select';
+    $element['#date_repeat_widget'] = 'date_popup';
   }
   if (is_array($element['#default_value'])) {
     $element['#value'] = date_repeat_merge($element['#value'], $element);
