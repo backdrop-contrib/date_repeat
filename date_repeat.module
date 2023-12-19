@@ -28,9 +28,6 @@ function date_repeat_element_info() {
     '#theme_wrappers' => array('container__radios'),
     '#pre_render' => array('form_pre_render_conditional_form_element'),
   );
-  if (module_exists('ctools')) {
-    $type['date_repeat_rrule']['#pre_render'] = array('ctools_dependent_pre_render');
-  }
   return $type;
 }
 
@@ -52,6 +49,16 @@ function date_repeat_theme() {
     'date_repeat_form_element' => $base + array('render element' => 'element'),
   );
   return $themes;
+}
+
+/**
+ * Implements hook_theme_registry_alter().
+ */
+function date_repeat_theme_registry_alter(&$theme_registry) {
+  $theme_registry['date_display_combination']['file'] = 'date_repeat.theme.inc';
+  $theme_registry['date_display_combination']['path'] = backdrop_get_path('module', 'date_repeat');
+  $theme_registry['date_display_combination']['theme path'] = backdrop_get_path('module', 'date_repeat');
+  $theme_registry['date_display_combination']['function'] = 'theme_date_repeat_repeat_display_combination';
 }
 
 /**
@@ -218,7 +225,7 @@ function date_repeat_rrule_description($rrule, $format = 'D M d Y') {
     return;
   }
 
-  module_load_include('inc', 'date_repeat', 'includes/date_api_ical');
+  module_load_include('inc', 'date_repeat', 'includes/date_repeat_ical');
   module_load_include('inc', 'date_repeat', 'includes/date_repeat_calc');
 
   $parts = date_repeat_split_rrule($rrule);
@@ -316,7 +323,7 @@ function date_repeat_rrule_description($rrule, $format = 'D M d Y') {
     array('!repeats_every_interval ' => '', '!count' => $rrule['COUNT'])));
   }
   if (!empty($rrule['UNTIL'])) {
-    $until = date_ical_date($rrule['UNTIL'], 'UTC');
+    $until = date_repeat_ical_date($rrule['UNTIL'], 'UTC');
     date_timezone_set($until, date_default_timezone_object());
     $description['!until'] = trim(t('!repeats_every_interval until !until_date',
     array(
@@ -327,7 +334,7 @@ function date_repeat_rrule_description($rrule, $format = 'D M d Y') {
   if ($exceptions) {
     $values = array();
     foreach ($exceptions as $exception) {
-      $except = date_ical_date($exception, 'UTC');
+      $except = date_repeat_ical_date($exception, 'UTC');
       date_timezone_set($except, date_default_timezone_object());
       $values[] = date_format_date($except, 'custom', $format);
     }
@@ -345,7 +352,7 @@ function date_repeat_rrule_description($rrule, $format = 'D M d Y') {
   if ($additions) {
     $values = array();
     foreach ($additions as $addition) {
-      $add = date_ical_date($addition, 'UTC');
+      $add = date_repeat_ical_date($addition, 'UTC');
       date_timezone_set($add, date_default_timezone_object());
       $values[] = date_format_date($add, 'custom', $format);
     }
@@ -372,16 +379,16 @@ function date_repeat_split_rrule($rrule) {
   foreach ($parts as $part) {
     if (strstr($part, 'RRULE')) {
       $cleanded_part = str_replace('RRULE:', '', $part);
-      $rrule = (array) date_ical_parse_rrule('RRULE:', $cleanded_part);
+      $rrule = (array) date_repeat_ical_parse_rrule('RRULE:', $cleanded_part);
     }
     elseif (strstr($part, 'EXDATE')) {
       $exdate = str_replace('EXDATE:', '', $part);
-      $exceptions = (array) date_ical_parse_exceptions('EXDATE:', $exdate);
+      $exceptions = (array) date_repeat_ical_parse_exceptions('EXDATE:', $exdate);
       unset($exceptions['DATA']);
     }
     elseif (strstr($part, 'RDATE')) {
       $rdate = str_replace('RDATE:', '', $part);
-      $additions = (array) date_ical_parse_exceptions('RDATE:', $rdate);
+      $additions = (array) date_repeat_ical_parse_exceptions('RDATE:', $rdate);
       unset($additions['DATA']);
     }
   }

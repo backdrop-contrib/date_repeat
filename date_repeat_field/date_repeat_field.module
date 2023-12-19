@@ -142,7 +142,7 @@ function date_repeat_field_show($entity_type = 'node', $entity = NULL) {
         && array_key_exists($entity_type, $data['bundles'])
         && in_array($bundle, $data['bundles'][$entity_type])) {
       $field_info = field_info_field($field_name);
-      if (date_is_repeat_field($field_info)) {
+      if (date_repeat_field_is_repeat_field($field_info)) {
         return TRUE;
       }
     }
@@ -162,7 +162,7 @@ function date_repeat_field_page($entity_type = 'node', $entity = NULL) {
   $entity->content = array();
   $output = '';
   foreach (field_info_fields() as $field_name => $field) {
-    if (in_array($field['type'], array('date', 'datestamp', 'datetime')) && date_is_repeat_field($field)) {
+    if (in_array($field['type'], array('date', 'datestamp', 'datetime')) && date_repeat_field_is_repeat_field($field)) {
       foreach ($field['bundles'] as $field_entity_type => $bundles) {
         foreach ($bundles as $field_bundle) {
           if ($entity_type == $field_entity_type && $bundle == $field_bundle) {
@@ -182,7 +182,7 @@ function date_repeat_field_page($entity_type = 'node', $entity = NULL) {
 function date_repeat_field_bundles() {
   $values = array();
   foreach (field_info_fields() as $field_name => $field) {
-    if (in_array($field['type'], array('date', 'datestamp', 'datetime')) && $field['settings']['repeat']) {
+    if (in_array($field['type'], array('date', 'datestamp', 'datetime')) && isset($field['settings']['repeat']) && $field['settings']['repeat']) {
       foreach ($field['bundles'] as $entity_type => $bundles) {
         foreach ($bundles as $bundle) {
           $values[$entity_type][$bundle][] = $field_name;
@@ -196,7 +196,7 @@ function date_repeat_field_bundles() {
 /**
  * Check field is repeat.
  */
-function date_is_repeat_field($field, $instance = NULL) {
+function date_repeat_field_is_repeat_field($field, $instance = NULL) {
   if (is_string($field)) {
     $field = field_info_field($field);
   }
@@ -263,11 +263,16 @@ function date_repeat_field_date_field_update_alter(&$items, $context) {
  * Implements hook_field_widget_form_alter().
  */
 function date_repeat_field_field_widget_form_alter(&$element, &$form_state, $context) {
-
   $field = $context['field'];
+  if (!in_array($field['type'], array('date', 'datetime', 'datestamp'))) {
+    return;
+  }
+
+  $field_name = $field['field_name'];
   $instance = $context['instance'];
   $items = $context['items'];
   $delta = $context['delta'];
+  $langcode = $context['langcode'];
 
   if (in_array($field['type'], array('date', 'datetime', 'datestamp'))) {
     if (!empty($field['settings']['repeat'])) {
@@ -287,8 +292,36 @@ function date_repeat_field_field_widget_form_alter(&$element, &$form_state, $con
         $element['#description'] = field_filter_xss($instance['description']);
         $element['#theme_wrappers'] = array('date_repeat_form_element');
       }
+
+      if ($delta == 0) {
+        $form_state['storage']['repeat_fields'][$field_name] = array_merge($element['#field_parents'], array($field_name));
+        $form_state['storage']['date_items'][$field_name][$langcode] = $items;
+      }
     }
   }
+}
+
+/**
+ * Implements hook_field_attach_form().
+ */
+function date_repeat_field_field_attach_form($entity_type, $entity, &$form, &$form_state, $langcode) {
+  if (empty($form_state['storage']['repeat_fields'])) {
+    return;
+  }
+
+  // @todo Repeating dates should probably be made into their own field type
+  // and completely separated out. That will have to wait for a new branch
+  // since it may break other things, including other modules that have an
+  // expectation of what the date field types are. Since repeating dates cannot
+  // use the default Add more button, we have to handle our own behaviors here.
+  // Return only the first multiple value for repeating dates, then clean up
+  // the 'Add more' bits in #after_build. The repeating values will be
+  // re-generated when the repeat widget form is validated. At this point we
+  // can't tell if this form element is going to be hidden by #access, and
+  // we're going to lose all but the first value by doing this, so store the
+  // original values in case we need to replace them later.
+  $form['#after_build'][] = 'date_repeat_after_build';
+
 }
 
 /**
@@ -353,6 +386,7 @@ function date_repeat_field_widget_validate($element, &$form_state) {
     switch ($instance['widget']['type']) {
       case 'date_text':
       case 'date_popup':
+      case 'date_html5':
         form_set_error($error_field_until . 'date', t("Missing value in 'Range of repeat'. (UNTIL).", array(), array('context' => 'Date repeat')));
         break;
 
@@ -409,17 +443,18 @@ function date_repeat_field_widget_validate($element, &$form_state) {
  *
  * Remove the 'Add more' elements from a repeating date form.
  */
-function date_repeat_after_build(&$element, &$form_state) {
+function date_repeat_after_build($form, &$form_state) {
+  // Remove the 'Add more' elements from a repeating date form.
   foreach ($form_state['storage']['repeat_fields'] as $field_name => $parents) {
     // Remove unnecessary items in the form added by the Add more handling.
-    $value = backdrop_array_get_nested_value($element, $parents);
+    $value = backdrop_array_get_nested_value($form, $parents);
     $langcode = $value['#language'];
     unset($value[$langcode]['add_more'], $value[$langcode]['#suffix'], $value[$langcode]['#prefix'], $value[$langcode][0]['_weight']);
     $value[$langcode]['#cardinality'] = 1;
     $value[$langcode]['#max_delta'] = 1;
-    backdrop_array_set_nested_value($element, $parents, $value);
+    backdrop_array_set_nested_value($form, $parents, $value);
   }
-  return $element;
+  return $form;
 }
 
 /**
@@ -428,17 +463,14 @@ function date_repeat_after_build(&$element, &$form_state) {
  * Pass in either the RRULE or the $form_values array for the RRULE,
  * whichever is missing will be created when needed.
  */
-// @codingStandardsIgnoreStart
-function date_repeat_build_dates($rrule = NULL, $rrule_values = NULL, $field, $item) {
-// @codingStandardsIgnoreEnd
-  include_once BACKDROP_ROOT . '/' . backdrop_get_path('module', 'date_repeat') . '/includes/date_api_ical.inc';
-  $field_name = $field['field_name'];
+function date_repeat_build_dates($rrule, $rrule_values, $field, $item) {
+  include_once BACKDROP_ROOT . '/' . backdrop_get_path('module', 'date_repeat') . '/includes/date_repeat_ical.inc';
 
   if (empty($rrule)) {
-    $rrule = date_api_ical_build_rrule($rrule_values);
+    $rrule = date_repeat_ical_build_rrule($rrule_values);
   }
   elseif (empty($rrule_values)) {
-    $rrule_values = date_ical_parse_rrule(NULL, $rrule);
+    $rrule_values = date_repeat_ical_parse_rrule(NULL, $rrule);
   }
 
   // By the time we get here, the start and end dates have been
@@ -463,7 +495,7 @@ function date_repeat_build_dates($rrule = NULL, $rrule_values = NULL, $field, $i
   $start_datetime = date_format($start, DATE_FORMAT_DATETIME);
 
   if (!empty($rrule_values['UNTIL']['datetime'])) {
-    $end = date_ical_date($rrule_values['UNTIL'], $timezone);
+    $end = date_repeat_ical_date($rrule_values['UNTIL'], $timezone);
     $end_datetime = date_format($end, DATE_FORMAT_DATETIME);
   }
   elseif (!empty($rrule_values['COUNT'])) {
@@ -479,14 +511,14 @@ function date_repeat_build_dates($rrule = NULL, $rrule_values = NULL, $field, $i
   $parsed_exceptions = (array) $parts[1];
   $exceptions = array();
   foreach ($parsed_exceptions as $exception) {
-    $date = date_ical_date($exception, $timezone);
+    $date = date_repeat_ical_date($exception, $timezone);
     $exceptions[] = date_format($date, 'Y-m-d');
   }
 
   $parsed_rdates = (array) $parts[2];
   $additions = array();
   foreach ($parsed_rdates as $rdate) {
-    $date = date_ical_date($rdate, $timezone);
+    $date = date_repeat_ical_date($rdate, $timezone);
     $additions[] = date_format($date, 'Y-m-d');
   }
 
@@ -522,12 +554,10 @@ function date_repeat_build_dates($rrule = NULL, $rrule_values = NULL, $field, $i
 function date_repeat_field_date_combo_process_alter(&$element, &$form_state, $context) {
   $field = $context['field'];
   $instance = $context['instance'];
-  $field_name = $element['#field_name'];
-  $delta = $element['#delta'];
 
   // Add a date repeat form element, if needed.
   // We delayed until this point so we don't bother adding it to hidden fields.
-  if (date_is_repeat_field($field, $instance)) {
+  if (date_repeat_field_is_repeat_field($field, $instance)) {
 
     $item = $element['#value'];
     $element['rrule'] = array(
@@ -565,7 +595,6 @@ function date_repeat_field_date_combo_pre_validate_alter(&$element, &$form_state
  * This Field API hook lets us add a new setting to the fields.
  */
 function date_repeat_field_field_info_alter(&$info) {
-
   $info['date']['settings'] += array(
     'repeat' => 0,
   );
@@ -583,7 +612,6 @@ function date_repeat_field_field_info_alter(&$info) {
  * This hook lets us add settings to the formatters.
  */
 function date_repeat_field_field_formatter_info_alter(&$info) {
-
   if (isset($info['date_default'])) {
     $info['date_default']['settings'] += array(
       'show_repeat_rule' => 'show',
@@ -597,18 +625,18 @@ function date_repeat_field_field_formatter_info_alter(&$info) {
  * This Field API hook lets us add a new setting to the widgets.
  */
 function date_repeat_field_field_widget_info_alter(&$info) {
-
   $info['date_text']['settings'] += array(
     'repeat_collapsed' => 0,
   );
   $info['date_select']['settings'] += array(
     'repeat_collapsed' => 0,
   );
-  if (module_exists('date_popup')) {
-    $info['date_popup']['settings'] += array(
-      'repeat_collapsed' => 0,
-    );
-  }
+  $info['date_popup']['settings'] += array(
+    'repeat_collapsed' => 0,
+  );
+  $info['date_html5']['settings'] += array(
+    'repeat_collapsed' => 0,
+  );
 }
 
 /**
@@ -645,9 +673,9 @@ function date_repeat_field_form_field_ui_field_edit_form_alter(&$form, &$form_st
   }
 
   // If using repeating dates, override the Field module's handling of the multiple values option.
-  if (date_is_repeat_field($field, $instance)) {
-    $form['field']['cardinality']['#disabled'] = TRUE;
-    $form['field']['cardinality']['#value'] = FIELD_CARDINALITY_UNLIMITED;
+  if (date_repeat_field_is_repeat_field($field, $instance)) {
+    $form['field']['cardinality_container']['cardinality']['#disabled'] = TRUE;
+    $form['field']['cardinality_container']['cardinality']['#value'] = FIELD_CARDINALITY_UNLIMITED;
   }
   // Repeating dates need unlimited values, confirm that in element_validate.
   $form['field']['#element_validate'] = array('date_repeat_field_set_cardinality');
@@ -658,7 +686,7 @@ function date_repeat_field_form_field_ui_field_edit_form_alter(&$form, &$form_st
  */
 function date_repeat_field_set_cardinality($element, &$form_state) {
   if (!empty($form_state['values']['field']['settings']['repeat'])) {
-    form_set_value($element['cardinality'], FIELD_CARDINALITY_UNLIMITED, $form_state);
+    form_set_value($element['cardinality_container']['cardinality'], FIELD_CARDINALITY_UNLIMITED, $form_state);
   }
 }
 
@@ -681,7 +709,7 @@ function date_repeat_field_date_field_widget_settings_form_alter(&$form, $contex
   $field = $context['field'];
   $instance = $context['instance'];
 
-  if (date_is_repeat_field($field, $instance)) {
+  if (date_repeat_field_is_repeat_field($field, $instance)) {
     $form['repeat_collapsed'] = array(
       '#type' => 'value',
       '#default_value' => 1,
@@ -742,6 +770,49 @@ function date_repeat_field_date_field_formatter_settings_summary_alter(&$summary
     }
     else {
       $summary[] = t('Hide repeat rule');
+    }
+  }
+}
+
+/**
+ * Implements hook_field_create_field().
+ */
+function date_repeat_field_field_create_field($field) {
+  // @todo Needs function body.
+}
+
+/**
+ * Implements hook_field_update_field().
+ */
+function date_repeat_field_field_update_field($field, $prior_field, $has_data) {
+  if (!isset($field['settings']['repeat'])) {
+    return;
+  }
+  $field_name = $field['field_name'];
+  $table_name = 'field_data_' . $field_name;
+  $revision_name = 'field_revision_' . $field_name;
+  if ($field['settings']['repeat']) {
+    if (!db_field_exists($table_name, "{$field_name}_rrule")) {
+      db_add_field($table_name, "{$field_name}_rrule", array(
+          'type' => 'text',
+          'not null' => FALSE,
+          'sortable' => FALSE,
+          'views' => FALSE,
+        )
+      );
+      db_add_field($revision_name, "{$field_name}_rrule", array(
+          'type' => 'text',
+          'not null' => FALSE,
+          'sortable' => FALSE,
+          'views' => FALSE,
+        )
+      );
+    }
+  }
+  else {
+    if (db_field_exists($table_name, "{$field_name}_rrule")) {
+      db_drop_field($table_name, "{$field_name}_rrule");
+      db_drop_field($revision_name, "{$field_name}_rrule");
     }
   }
 }

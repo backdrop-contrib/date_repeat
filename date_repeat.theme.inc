@@ -72,10 +72,10 @@ function theme_date_repeat_repeat_display_combination($variables) {
   $options     = $display['settings'];
   $dates       = $variables['dates'];
   $attributes  = $variables['attributes'];
-  $rdf_mapping = $variables['rdf_mapping'];
-  $add_rdf     = $variables['add_rdf'];
-  $microdata   = $variables['microdata'];
-  $add_microdata = $variables['add_microdata'];
+  // $rdf_mapping = $variables['rdf_mapping'];
+  // $add_rdf     = $variables['add_rdf'];
+  // $microdata   = $variables['microdata'];
+  // $add_microdata = $variables['add_microdata'];
   $precision   = date_granularity_precision($field['settings']['granularity']);
 
   $output = '';
@@ -100,7 +100,7 @@ function theme_date_repeat_repeat_display_combination($variables) {
       'entity_type' => $entity_type,
       'entity' => $entity,
     );
-    $output .= theme('date_repeat_display', $repeat_vars);
+    $output .= theme('date_display', $repeat_vars);
     $repeating_ids[] = $id;
   }
 
@@ -178,10 +178,10 @@ function theme_date_repeat_repeat_display_combination($variables) {
       'date' => $date1,
       'timezone' => $has_time_string ? $timezone : '',
       'attributes' => $attributes,
-      'rdf_mapping' => $rdf_mapping,
-      'add_rdf' => $add_rdf,
-      'microdata' => $microdata,
-      'add_microdata' => $add_microdata,
+      // 'rdf_mapping' => $rdf_mapping,
+      // 'add_rdf' => $add_rdf,
+      // 'microdata' => $microdata,
+      // 'add_microdata' => $add_microdata,
       'dates' => $dates,
       'show_remaining_days' => $show_remaining_days,
     ));
@@ -199,10 +199,10 @@ function theme_date_repeat_repeat_display_combination($variables) {
       'date2' => $time2,
       'timezone' => $timezone,
       'attributes' => $attributes,
-      'rdf_mapping' => $rdf_mapping,
-      'add_rdf' => $add_rdf,
-      'microdata' => $microdata,
-      'add_microdata' => $add_microdata,
+      // 'rdf_mapping' => $rdf_mapping,
+      // 'add_rdf' => $add_rdf,
+      // 'microdata' => $microdata,
+      // 'add_microdata' => $add_microdata,
       'dates' => $dates,
       'show_remaining_days' => $show_remaining_days,
     ));
@@ -211,8 +211,8 @@ function theme_date_repeat_repeat_display_combination($variables) {
       'date' => $replaced,
       'timezone' => $timezone,
       'attributes' => array(),
-      'rdf_mapping' => array(),
-      'add_rdf' => FALSE,
+      // 'rdf_mapping' => array(),
+      // 'add_rdf' => FALSE,
       'dates' => $dates,
     ));
   }
@@ -224,10 +224,10 @@ function theme_date_repeat_repeat_display_combination($variables) {
       'date2' => $date2,
       'timezone' => $has_time_string ? $timezone : '',
       'attributes' => $attributes,
-      'rdf_mapping' => $rdf_mapping,
-      'add_rdf' => $add_rdf,
-      'microdata' => $microdata,
-      'add_microdata' => $add_microdata,
+      // 'rdf_mapping' => $rdf_mapping,
+      // 'add_rdf' => $add_rdf,
+      // 'microdata' => $microdata,
+      // 'add_microdata' => $add_microdata,
       'dates' => $dates,
       'show_remaining_days' => $show_remaining_days,
     ));

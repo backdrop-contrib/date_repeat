@@ -31,7 +31,7 @@
  * Compute dates that match the requested rule, within a specified date range.
  */
 function _date_repeat_calc($rrule, $start, $end, $exceptions, $timezone, $additions) {
-  module_load_include('inc', 'date_repeat', 'includes/date_api_ical');
+  module_load_include('inc', 'date_repeat', 'includes/date_repeat_ical');
 
   if (empty($timezone)) {
     $timezone = date_default_timezone();
@@ -43,7 +43,7 @@ function _date_repeat_calc($rrule, $start, $end, $exceptions, $timezone, $additi
     $rrule = $parts[0];
   }
   // Get the parsed array of rule values.
-  $rrule = date_ical_parse_rrule('RRULE:', $rrule);
+  $rrule = date_repeat_ical_parse_rrule('RRULE:', $rrule);
 
   // These default values indicate there is no RRULE here.
   if ($rrule['FREQ'] == 'NONE' || (isset($rrule['INTERVAL']) && $rrule['INTERVAL'] == 0)) {
@@ -63,7 +63,7 @@ function _date_repeat_calc($rrule, $start, $end, $exceptions, $timezone, $additi
   // If the rule has an UNTIL, see if that is earlier than the end date.
   if (!empty($rrule['UNTIL'])) {
     $end_date = new BackdropDateTime($end, $timezone);
-    $until_date = date_ical_date($rrule['UNTIL'], $timezone);
+    $until_date = date_repeat_ical_date($rrule['UNTIL'], $timezone);
     if (date_format($until_date, 'U') < date_format($end_date, 'U')) {
       $end_date = $until_date;
     }

@@ -46,13 +46,13 @@ function _date_repeat_rrule_process($element, &$form_state, $form) {
     return $element;
   }
 
-    module_load_include('inc', 'date_repeat', 'includes/date_api_ical');
+    module_load_include('inc', 'date_repeat', 'includes/date_repeat_ical');
   if (empty($element['#date_repeat_widget'])) {
-    $element['#date_repeat_widget'] = module_exists('date_popup') ? 'date_popup' : 'date_select';
+    $element['#date_repeat_widget'] = 'date_popup';
   }
   if (is_array($element['#default_value'])) {
     $element['#value'] = date_repeat_merge($element['#value'], $element);
-    $rrule = date_api_ical_build_rrule($element['#value']);
+    $rrule = date_repeat_ical_build_rrule($element['#value']);
   }
   else {
     $rrule = $element['#default_value'];
@@ -603,6 +603,7 @@ function _date_repeat_rrule_process($element, &$form_state, $form) {
       '#tree' => TRUE,
       'datetime' => array(
         '#name' => 'exceptions|' . $instance,
+        '#title' => '',
         '#type' => $element['#date_repeat_widget'],
         '#default_value' => $except,
         '#date_timezone' => !empty($element['#date_timezone']) ?
@@ -676,6 +677,7 @@ function _date_repeat_rrule_process($element, &$form_state, $form) {
       '#tree' => TRUE,
       'datetime' => array(
         '#type' => $element['#date_repeat_widget'],
+        '#title' => '',
         '#name' => 'additions|' . $instance,
         '#default_value' => $r_date,
         '#date_timezone' => !empty($element['#date_timezone']) ?
@@ -989,11 +991,11 @@ function date_repeat_rrule_validate($element, &$form_state) {
     }
   }
 
-  module_load_include('inc', 'date_repeat', 'includes/date_api_ical');
+  module_load_include('inc', 'date_repeat', 'includes/date_repeat_ical');
 
   $item = backdrop_array_get_nested_value($form_state['values'], $element['#parents']);
   $item = date_repeat_merge($item, $element);
-  $rrule = date_api_ical_build_rrule($item);
+  $rrule = date_repeat_ical_build_rrule($item);
   form_set_value($element, $rrule, $form_state);
 }
 

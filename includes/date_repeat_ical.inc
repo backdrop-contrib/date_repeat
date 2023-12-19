@@ -32,11 +32,11 @@
  * @todo
  *   Another option for dates is the format PROPERTY;VALUE=PERIOD:XXXX. The
  *   period may include a duration, or a date and a duration, or two dates, so
- *   would have to be split into parts and run through date_ical_parse_date()
- *   and date_ical_parse_duration(). This is not commonly used, so ignored for
+ *   would have to be split into parts and run through date_repeat_ical_parse_date()
+ *   and date_repeat_ical_parse_duration(). This is not commonly used, so ignored for
  *   now. It will take more work to figure how to support that.
  */
-function date_ical_parse_date($field, $data) {
+function date_repeat_ical_parse_date($field, $data) {
 
   $items = array('datetime' => '', 'all_day' => '', 'tz' => '');
   if (empty($data)) {
@@ -104,7 +104,7 @@ function date_ical_parse_date($field, $data) {
     $tz = str_replace('-', '/', $tz);
     // Unset invalid timezone names.
     module_load_include('inc', 'date_repeat', 'includes/date_api.admin');
-    $tz = _date_timezone_replacement($tz);
+    $tz = _date_repeat_timezone_replacement($tz);
     if (!date_timezone_is_valid($tz)) {
       $tz = '';
     }
@@ -131,7 +131,7 @@ function date_ical_parse_date($field, $data) {
  *   Array in the form of PROPERTY => array(VALUES)
  *   PROPERTIES include FREQ, INTERVAL, COUNT, BYDAY, BYMONTH, BYYEAR, UNTIL
  */
-function date_ical_parse_rrule($field, $data) {
+function date_repeat_ical_parse_rrule($field, $data) {
   $data = preg_replace("/RRULE.*:/", '', $data);
   $items = array('DATA' => $data);
   $rrule = explode(';', $data);
@@ -142,7 +142,7 @@ function date_ical_parse_rrule($field, $data) {
       continue;
     }
     if ($param[0] == 'UNTIL') {
-      $values = date_ical_parse_date('', $param[1]);
+      $values = date_repeat_ical_parse_date('', $param[1]);
     }
     else {
       $values = explode(',', $param[1]);
@@ -164,12 +164,12 @@ function date_ical_parse_rrule($field, $data) {
  * @return array
  *   an array of date value arrays.
  */
-function date_ical_parse_exceptions($field, $data) {
+function date_repeat_ical_parse_exceptions($field, $data) {
   $data = str_replace($field . ':', '', $data);
   $items = array('DATA' => $data);
   $ex_dates = explode(',', $data);
   foreach ($ex_dates as $ex_date) {
-    $items[] = date_ical_parse_date('', $ex_date);
+    $items[] = date_repeat_ical_parse_date('', $ex_date);
   }
   return $items;
 }
@@ -187,7 +187,7 @@ function date_ical_parse_exceptions($field, $data) {
  * @return object
  *   A timezone-adjusted date object.
  */
-function date_ical_date($ical_date, $to_tz = FALSE) {
+function date_repeat_ical_date($ical_date, $to_tz = FALSE) {
 
   // If the ical date has no timezone, must assume it is stateless
   // so treat it as a local date.
@@ -220,7 +220,7 @@ function date_ical_date($ical_date, $to_tz = FALSE) {
  * @return string
  *   Escaped text
  */
-function date_ical_escape_text($text) {
+function date_repeat_ical_escape_text($text) {
   $text = backdrop_html_to_text($text);
   $text = trim($text);
   // TODO Per #38130 the iCal specs don't want : and " escaped
@@ -239,7 +239,7 @@ function date_ical_escape_text($text) {
  * Build an iCal RULE from $form_values.
  *
  * @param array $form_values
- *   An array constructed like the one created by date_ical_parse_rrule().
+ *   An array constructed like the one created by date_repeat_ical_parse_rrule().
  *     [RRULE] => Array (
  *       [FREQ] => Array (
  *         [0] => MONTHLY
@@ -279,7 +279,7 @@ function date_ical_escape_text($text) {
  *       )
  *     )
  */
-function date_api_ical_build_rrule($form_values) {
+function date_repeat_ical_build_rrule($form_values) {
   $rrule = '';
   if (empty($form_values) || !is_array($form_values)) {
     return $rrule;
@@ -331,7 +331,7 @@ function date_api_ical_build_rrule($form_values) {
         $form_values['UNTIL']['granularity'] = serialize($granularity_options);
         $form_values['UNTIL']['all_day'] = FALSE;
       }
-      $until = date_ical_date($form_values['UNTIL'], 'UTC');
+      $until = date_repeat_ical_date($form_values['UNTIL'], 'UTC');
     }
     else {
       $until = $form_values['UNTIL']['datetime'];
@@ -360,7 +360,7 @@ function date_api_ical_build_rrule($form_values) {
     $ex_dates = array();
     foreach ($form_values['EXDATE'] as $value) {
       if (!empty($value['datetime'])) {
-        $date = !is_object($value['datetime']) ? date_ical_date($value, 'UTC') : $value['datetime'];
+        $date = !is_object($value['datetime']) ? date_repeat_ical_date($value, 'UTC') : $value['datetime'];
         $ex_date = !empty($date) ? date_format($date, DATE_FORMAT_ICAL) . 'Z' : '';
         if (!empty($ex_date)) {
           $ex_dates[] = $ex_date;
@@ -380,7 +380,7 @@ function date_api_ical_build_rrule($form_values) {
   if (isset($form_values['RDATE']) && is_array($form_values['RDATE'])) {
     $ex_dates = array();
     foreach ($form_values['RDATE'] as $value) {
-      $date = !is_object($value['datetime']) ? date_ical_date($value, 'UTC') : $value['datetime'];
+      $date = !is_object($value['datetime']) ? date_repeat_ical_date($value, 'UTC') : $value['datetime'];
       $ex_date = !empty($date) ? date_format($date, DATE_FORMAT_ICAL) . 'Z' : '';
       if (!empty($ex_date)) {
         $ex_dates[] = $ex_date;
