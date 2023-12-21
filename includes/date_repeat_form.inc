@@ -977,7 +977,8 @@ function date_repeat_rrule_validate($element, &$form_state) {
   $parents = $element['#parents'];
   array_pop($parents);
   $field_values = backdrop_array_get_nested_value($form_state['values'], $parents);
-  if ($field_values['show_repeat_settings'] === 0 || $field_values['rrule']['FREQ'] === 'NONE') {
+  if ((isset($field_values['show_repeat_settings']) && $field_values['show_repeat_settings'] === 0)
+    || (isset($field_values['rrule']['FREQ']) && $field_values['rrule']['FREQ'] === 'NONE')) {
     form_set_value($element, NULL, $form_state);
     return;
   }
@@ -1036,6 +1037,7 @@ function theme_date_repeat_current_additions($rows = array()) {
  * Wrapper fieldset for repeat rule.
  */
 function theme_date_repeat_rrule($vars) {
+  // @todo make this work with html5 date.
   $element = $vars['element'];
   $id = backdrop_html_id('repeat-settings-fieldset');
   $parents = $element['#parents'];

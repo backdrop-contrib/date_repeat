@@ -49,9 +49,7 @@ function date_repeat_field_theme() {
  * over and over and find a way to allow description to be shown or hidden.
  */
 function theme_date_repeat_display($vars) {
-  $field = $vars['field'];
   $item = $vars['item'];
-  $entity = !empty($vars['node']) ? $vars['node'] : NULL;
   $output = '';
   if (!empty($item['rrule'])) {
     $output = date_repeat_rrule_description($item['rrule']);
@@ -223,8 +221,6 @@ function date_repeat_field_date_field_insert_alter(&$items, $context) {
 
   $entity = $context['entity'];
   $field = $context['field'];
-  $instance = $context['instance'];
-  $langcode = $context['langcode'];
 
   // If an RRULE with a frequency of NONE made it this far, unset it.
   if (!empty($items[0]['rrule']) && strpos($items[0]['rrule'], 'FREQ=NONE')) {
@@ -274,29 +270,28 @@ function date_repeat_field_field_widget_form_alter(&$element, &$form_state, $con
   $delta = $context['delta'];
   $langcode = $context['langcode'];
 
-  if (in_array($field['type'], array('date', 'datetime', 'datestamp'))) {
-    if (!empty($field['settings']['repeat'])) {
-      $element['#element_validate'][] = 'date_repeat_field_widget_validate';
-      $element['show_repeat_settings'] = array(
-        '#type' => 'checkbox',
-        '#title' => t('Repeat'),
-        '#weight' => $instance['widget']['weight'] + .3,
-        '#prefix' => '<div class="date-clear">',
-        '#suffix' => '</div>',
-        '#default_value' => isset($items[$delta]['rrule']) && !empty($items[$delta]['rrule']) ? 1 : 0,
-      );
+  if (!empty($field['settings']['repeat'])) {
+    $element['#element_validate'][] = 'date_repeat_field_widget_validate';
+    $element['show_repeat_settings'] = array(
+      '#type' => 'checkbox',
+      '#title' => t('Repeat'),
+      '#weight' => $instance['widget']['weight'] + .3,
+      '#prefix' => '<div class="date-clear">',
+      '#suffix' => '</div>',
+      '#default_value' => isset($items[$delta]['rrule']) && !empty($items[$delta]['rrule']) ? 1 : 0,
+    );
 
-      // Make changes if instance is set to be rendered as a regular field.
-      if (!empty($instance['widget']['settings']['no_fieldset'])) {
-        $element['#title'] = check_plain($instance['label']);
-        $element['#description'] = field_filter_xss($instance['description']);
-        $element['#theme_wrappers'] = array('date_repeat_form_element');
-      }
+    // Make changes if instance is set to be rendered as a regular field.
+    if (!empty($instance['widget']['settings']['no_fieldset'])) {
+      $element['#title'] = check_plain($instance['label']);
+      $element['#description'] = field_filter_xss($instance['description']);
+      $element['#theme_wrappers'] = array('date_repeat_form_element');
+    }
 
-      if ($delta == 0) {
-        $form_state['storage']['repeat_fields'][$field_name] = array_merge($element['#field_parents'], array($field_name));
-        $form_state['storage']['date_items'][$field_name][$langcode] = $items;
-      }
+    // @todo make $delta make sense here so the after build only happens for the one element.
+    if ($delta == 0) {
+      $form_state['storage']['repeat_fields'][$field_name] = array_merge($element['#field_parents'], array($field_name));
+      $form_state['storage']['date_items'][$field_name][$langcode] = $items;
     }
   }
 }
@@ -452,6 +447,11 @@ function date_repeat_after_build($form, &$form_state) {
     unset($value[$langcode]['add_more'], $value[$langcode]['#suffix'], $value[$langcode]['#prefix'], $value[$langcode][0]['_weight']);
     $value[$langcode]['#cardinality'] = 1;
     $value[$langcode]['#max_delta'] = 1;
+    foreach ($value[$langcode] as $delta => $item) {
+      if ($delta > 0) {
+        $value[$langcode][$delta]['#access'] = FALSE;
+      }
+    }
     backdrop_array_set_nested_value($form, $parents, $value);
   }
   return $form;

@@ -6,38 +6,19 @@
  */
 
 /**
- * Implements hook_schema_alter().
+ * Implements hook_field_schema_alter().
  */
-function date_repeat_field_schema_alter(&$schema) {
-  $fields = field_info_fields();
-  foreach ($fields as $field_name => $field_info) {
-    if ($field_info['module'] != 'date') {
-      continue;
-    }
-    if (isset($field_info['settings']['repeat']) && $field_info['settings']['repeat'] == 1) {
-      $table_name = 'field_data_' . $field_name;
-      $revision_name = 'field_revision_' . $field_name;
-      $db_column = array(
-        'type' => 'text',
-        'not null' => FALSE,
-        'sortable' => FALSE,
-        'views' => FALSE,
-      );
-      $schema[$table_name]['fields']["{$field_name}_rrule"] = $db_column;
-      $schema[$revision_name]['fields']["{$field_name}_rrule"] = $db_column;
-    }
+function date_repeat_field_field_schema_alter(&$schema, $field) {
+  if (!in_array($field['type'], array('date', 'datestamp', 'datetime'))) {
+    return;
   }
-}
-
-/**
- * Implements hook_uninstall().
- */
-function date_repeat_field_uninstall() {
-//   // @todo remove columns for each field that has date repeat enabled.
-//   if (db_field_exists('table_Y', 'field_X')) {
-//     db_drop_field('table_Y', 'field_X');
-//   }
-//   // Flush outdated cache data.
-//   cache('cache')->deletePrefix('schema');
-//   backdrop_static_reset('_node_types_build');
+  if (isset($field['settings']['repeat']) && $field['settings']['repeat'] == 1) {
+    $schema['columns']['rrule'] = array(
+      'description' => "Date repeat rule.",
+      'type' => 'text',
+      'not null' => FALSE,
+      'sortable' => FALSE,
+      'views' => FALSE,
+    );
+  }
 }
