@@ -449,7 +449,7 @@ function date_repeat_after_build($form, &$form_state) {
     $value[$langcode]['#max_delta'] = 1;
     foreach ($value[$langcode] as $delta => $item) {
       if ($delta > 0) {
-        $value[$langcode][$delta]['#access'] = FALSE;
+        unset($value[$langcode][$delta]);
       }
     }
     backdrop_array_set_nested_value($form, $parents, $value);

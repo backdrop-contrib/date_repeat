@@ -487,17 +487,6 @@ function date_repeat_form_element_radios_process($element) {
 }
 
 /**
- * Implements hook_autoload_info().
- */
-function date_repeat_autoload_info()
-{
-    return array(
-        'DateRepeatTestCase' => 'tests/date_repeat.test',
-        'DateRepeatFormTestCase' => 'tests/date_repeat_form.test'
-    );
-}
-
-/**
  ****************************************************************************
  * Helper functions below replicated from the date_api module since they were
  * not included in the date module when added to Backdrop core.
