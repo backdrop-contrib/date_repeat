@@ -288,7 +288,6 @@ function date_repeat_field_field_widget_form_alter(&$element, &$form_state, $con
       $element['#theme_wrappers'] = array('date_repeat_form_element');
     }
 
-    // @todo make $delta make sense here so the after build only happens for the one element.
     if ($delta == 0) {
       $form_state['storage']['repeat_fields'][$field_name] = array_merge($element['#field_parents'], array($field_name));
       $form_state['storage']['date_items'][$field_name][$langcode] = $items;

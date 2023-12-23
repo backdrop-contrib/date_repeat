@@ -56,7 +56,7 @@
  * $dates['value2']['formatted_time']
  *   Only the time part of the formatted End date
  */
-function theme_date_repeat_repeat_display_combination($variables) {
+function theme_date_repeat_display_combination($variables) {
   static $repeating_ids = array();
 
   $entity_type = $variables['entity_type'];
@@ -72,11 +72,8 @@ function theme_date_repeat_repeat_display_combination($variables) {
   $options     = $display['settings'];
   $dates       = $variables['dates'];
   $attributes  = $variables['attributes'];
-  // $rdf_mapping = $variables['rdf_mapping'];
-  // $add_rdf     = $variables['add_rdf'];
-  // $microdata   = $variables['microdata'];
-  // $add_microdata = $variables['add_microdata'];
   $precision   = date_granularity_precision($field['settings']['granularity']);
+  $show_remaining_days = $variables['show_remaining_days'];
 
   $output = '';
 
@@ -100,7 +97,7 @@ function theme_date_repeat_repeat_display_combination($variables) {
       'entity_type' => $entity_type,
       'entity' => $entity,
     );
-    $output .= theme('date_display', $repeat_vars);
+    $output .= theme('date_repeat_display', $repeat_vars);
     $repeating_ids[] = $id;
   }
 
@@ -130,16 +127,25 @@ function theme_date_repeat_repeat_display_combination($variables) {
     default:
       $date1 = $dates['value']['formatted'];
       $date2 = $dates['value2']['formatted'];
+      break;
   }
 
   // Pull the timezone, if any, out of the formatted result and tack it back on
   // at the end, if it is in the current formatted date.
   $timezone = $dates['value']['formatted_timezone'];
-  if ($timezone) {
+  if (date_timezone_is_valid($timezone) && $date1 !== $date2) {
+    // We only handle timezone identifiers.
+    // Start and end can have different offsets (DST).
+    // Removing an offset in seconds (Z) creates false positives.
+    // And we only do this, if we really have a range,
+    // single dates are left untouched.
+    $date1 = str_replace($timezone, '', $date1);
+    $date2 = str_replace($timezone, '', $date2);
     $timezone = ' ' . $timezone;
   }
-  $date1 = str_replace($timezone, '', $date1);
-  $date2 = str_replace($timezone, '', $date2);
+  else {
+    $timezone = '';
+  }
   $time1 = preg_replace('`^([\(\[])`', '', $dates['value']['formatted_time']);
   $time1 = preg_replace('([\)\]]$)', '', $time1);
   $time2 = preg_replace('`^([\(\[])`', '', $dates['value2']['formatted_time']);
@@ -155,11 +161,13 @@ function theme_date_repeat_repeat_display_combination($variables) {
   // Check remaining days.
   $show_remaining_days = '';
   if (!empty($variables['show_remaining_days'])) {
-    $remaining_days = floor((strtotime($variables['dates']['value']['formatted_iso'])
-    - strtotime('now')) / (24 * 3600));
-
+    // Create a date object from the timestamp.
+    $date = new DateTime('@' . strtotime($variables['dates']['value']['formatted_iso']));
+    // Using date_diff()->days allows to get the days diff, without having to
+    // use complex math to calculate it. It also takes into account leap years.
+    $remaining_days = date_diff($date, date_now())->days;
     // Show remaining days only for future events.
-    if ($remaining_days >= 0) {
+    if ($date->format('U') > REQUEST_TIME) {
       $show_remaining_days = theme('date_display_remaining', array(
         'remaining_days' => $remaining_days,
       ));
@@ -170,23 +178,17 @@ function theme_date_repeat_repeat_display_combination($variables) {
   if (empty($date1) && empty($date2)) {
     $output .= '';
   }
-
   // Start and End dates match or there is no End date, display a complete
   // single date.
   elseif ($date1 == $date2 || empty($date2)) {
     $output .= theme('date_display_single', array(
       'date' => $date1,
-      'timezone' => $has_time_string ? $timezone : '',
+      'timezone' => $timezone,
       'attributes' => $attributes,
-      // 'rdf_mapping' => $rdf_mapping,
-      // 'add_rdf' => $add_rdf,
-      // 'microdata' => $microdata,
-      // 'add_microdata' => $add_microdata,
       'dates' => $dates,
       'show_remaining_days' => $show_remaining_days,
     ));
   }
-
   // Same day, different times, don't repeat the date but show both Start and
   // End times. We can NOT do this if the replacement value is an integer
   // instead of a time string.
@@ -199,35 +201,25 @@ function theme_date_repeat_repeat_display_combination($variables) {
       'date2' => $time2,
       'timezone' => $timezone,
       'attributes' => $attributes,
-      // 'rdf_mapping' => $rdf_mapping,
-      // 'add_rdf' => $add_rdf,
-      // 'microdata' => $microdata,
-      // 'add_microdata' => $add_microdata,
       'dates' => $dates,
-      'show_remaining_days' => $show_remaining_days,
+      'show_remaining_days' => '',
     ));
     $replaced = str_replace($time1, $time, $date1);
     $output .= theme('date_display_single', array(
       'date' => $replaced,
       'timezone' => $timezone,
       'attributes' => array(),
-      // 'rdf_mapping' => array(),
-      // 'add_rdf' => FALSE,
       'dates' => $dates,
+      'show_remaining_days' => $show_remaining_days,
     ));
   }
-
   // Different days, display both in their entirety.
   else {
     $output .= theme('date_display_range', array(
       'date1' => $date1,
       'date2' => $date2,
-      'timezone' => $has_time_string ? $timezone : '',
+      'timezone' => $timezone,
       'attributes' => $attributes,
-      // 'rdf_mapping' => $rdf_mapping,
-      // 'add_rdf' => $add_rdf,
-      // 'microdata' => $microdata,
-      // 'add_microdata' => $add_microdata,
       'dates' => $dates,
       'show_remaining_days' => $show_remaining_days,
     ));

@@ -55,10 +55,18 @@ function date_repeat_theme() {
  * Implements hook_theme_registry_alter().
  */
 function date_repeat_theme_registry_alter(&$theme_registry) {
-  $theme_registry['date_display_combination']['file'] = 'date_repeat.theme.inc';
-  $theme_registry['date_display_combination']['path'] = backdrop_get_path('module', 'date_repeat');
-  $theme_registry['date_display_combination']['theme path'] = backdrop_get_path('module', 'date_repeat');
-  $theme_registry['date_display_combination']['function'] = 'theme_date_repeat_repeat_display_combination';
+  $theme_registry['date_display_combination'] = array(
+    'file' => 'date_repeat.theme.inc',
+    'path' => backdrop_get_path('module', 'date_repeat'),
+    'theme path' => backdrop_get_path('module', 'date_repeat'),
+    'function' => 'theme_date_repeat_display_combination',
+    'includes' => array(
+      backdrop_get_path('module', 'date_repeat') . '/' . 'date_repeat.theme.inc',
+    ),
+    'preprocess functions' => array(
+      'template_preprocess_date_display_combination',
+    ),
+  );
 }
 
 /**
