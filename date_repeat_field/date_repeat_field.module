@@ -264,6 +264,11 @@ function date_repeat_field_field_widget_form_alter(&$element, &$form_state, $con
     return;
   }
 
+  // @todo Get html5 date fields working. For now, prevent them from using the rrule.
+  if (isset($element['value']) && in_array($element['value']['#type'], array('html_datetime', 'html_date'))) {
+    return;
+  }
+
   $field_name = $field['field_name'];
   $instance = $context['instance'];
   $items = $context['items'];
