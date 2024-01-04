@@ -22,3 +22,48 @@ function date_repeat_field_field_schema_alter(&$schema, $field) {
     );
   }
 }
+
+/**
+ * Implements hook_install().
+ */
+function date_repeat_field_install() {
+  // Usually it will install nothing, unless there's a stray repeat setting
+  // from a previous installation.
+  _date_repeat_field_handle_fields();
+}
+
+/**
+ * Implements hook_uninstall().
+ */
+function date_repeat_field_uninstall() {
+  _date_repeat_field_handle_fields('uninstall');
+}
+
+/**
+  * Manually add/remove database columns for altered fields.
+  */
+function _date_repeat_field_handle_fields($op='install') {
+  $fields = field_info_fields();
+  foreach ($fields as $field) {
+    if (!in_array($field['type'], array('date', 'datestamp', 'datetime'))) {
+      continue;
+    }
+
+    // Perform actions on every table including revisions tables.
+    foreach ($field['storage']['details']['sql'] as $sql) {
+      foreach ($sql as $table_name => $table_data) {
+        $schema['columns'] = array();
+        date_repeat_field_field_schema_alter($schema, $field);
+        foreach ($schema['columns'] as $field_name => $spec) {
+          $field_name = $field['field_name'] . '_' . $field_name;
+          if ($op == 'install' && !db_field_exists($table_name, $field_name)) {
+            db_add_field($table_name, $field_name, $spec);
+          }
+          if ($op == 'uninstall' && db_field_exists($table_name, $field_name)) {
+            db_drop_field($table_name, $field_name);
+          }
+        }
+      }
+    }
+  }
+}
