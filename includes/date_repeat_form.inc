@@ -46,13 +46,13 @@ function _date_repeat_rrule_process($element, &$form_state, $form) {
     return $element;
   }
 
-    module_load_include('inc', 'date_repeat', 'includes/date_api_ical');
+    module_load_include('inc', 'date_repeat', 'includes/date_repeat_ical');
   if (empty($element['#date_repeat_widget'])) {
-    $element['#date_repeat_widget'] = module_exists('date_popup') ? 'date_popup' : 'date_select';
+    $element['#date_repeat_widget'] = 'date_popup';
   }
   if (is_array($element['#default_value'])) {
     $element['#value'] = date_repeat_merge($element['#value'], $element);
-    $rrule = date_api_ical_build_rrule($element['#value']);
+    $rrule = date_repeat_ical_build_rrule($element['#value']);
   }
   else {
     $rrule = $element['#default_value'];
@@ -603,6 +603,7 @@ function _date_repeat_rrule_process($element, &$form_state, $form) {
       '#tree' => TRUE,
       'datetime' => array(
         '#name' => 'exceptions|' . $instance,
+        '#title' => '',
         '#type' => $element['#date_repeat_widget'],
         '#default_value' => $except,
         '#date_timezone' => !empty($element['#date_timezone']) ?
@@ -676,6 +677,7 @@ function _date_repeat_rrule_process($element, &$form_state, $form) {
       '#tree' => TRUE,
       'datetime' => array(
         '#type' => $element['#date_repeat_widget'],
+        '#title' => '',
         '#name' => 'additions|' . $instance,
         '#default_value' => $r_date,
         '#date_timezone' => !empty($element['#date_timezone']) ?
@@ -975,7 +977,8 @@ function date_repeat_rrule_validate($element, &$form_state) {
   $parents = $element['#parents'];
   array_pop($parents);
   $field_values = backdrop_array_get_nested_value($form_state['values'], $parents);
-  if ($field_values['show_repeat_settings'] === 0 || $field_values['rrule']['FREQ'] === 'NONE') {
+  if ((isset($field_values['show_repeat_settings']) && $field_values['show_repeat_settings'] === 0)
+    || (isset($field_values['rrule']['FREQ']) && $field_values['rrule']['FREQ'] === 'NONE')) {
     form_set_value($element, NULL, $form_state);
     return;
   }
@@ -983,17 +986,17 @@ function date_repeat_rrule_validate($element, &$form_state) {
   // Clean the buttons off of the form. Needed to avoid errors when
   // the date is used on a user object, which then passes the form
   // through form_state_values_clean().
-  foreach ($form_state['buttons'] as $delta => $item) {
-    if (!empty($item['#ajax']['callback']) && in_array($item['#ajax']['callback'], array('date_repeat_add_exception_callback', 'date_repeat_add_addition_callback'))) {
+  foreach ($form_state['buttons'] as $delta => $button) {
+    if (!empty($button['#ajax']['callback']) && in_array($button['#ajax']['callback'], array('date_repeat_add_exception_callback', 'date_repeat_add_addition_callback'))) {
       unset($form_state['buttons'][$delta]);
     }
   }
 
-  module_load_include('inc', 'date_repeat', 'includes/date_api_ical');
+  module_load_include('inc', 'date_repeat', 'includes/date_repeat_ical');
 
   $item = backdrop_array_get_nested_value($form_state['values'], $element['#parents']);
   $item = date_repeat_merge($item, $element);
-  $rrule = date_api_ical_build_rrule($item);
+  $rrule = date_repeat_ical_build_rrule($item);
   form_set_value($element, $rrule, $form_state);
 }
 
@@ -1034,6 +1037,7 @@ function theme_date_repeat_current_additions($rows = array()) {
  * Wrapper fieldset for repeat rule.
  */
 function theme_date_repeat_rrule($vars) {
+  // @todo make this work with html5 date.
   $element = $vars['element'];
   $id = backdrop_html_id('repeat-settings-fieldset');
   $parents = $element['#parents'];

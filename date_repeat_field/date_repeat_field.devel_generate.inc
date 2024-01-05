@@ -32,7 +32,7 @@ function date_repeat_field_date_field_insert(&$items, $context) {
 
   // Compute repeating date values.
   module_load_include('inc', 'date_repeat', 'includes/date_repeat_calc');
-  module_load_include('inc', 'date_repeat', 'includes/date_api_ical');
+  module_load_include('inc', 'date_repeat', 'includes/date_repeat_ical');
 
   $increment = $instance['widget']['settings']['increment'];
   $timezone = date_get_timezone($field['settings']['tz_handling'], $item['timezone']);
@@ -129,7 +129,7 @@ function date_repeat_field_date_field_insert(&$items, $context) {
   $form_values['UNTIL'] = array();
   $form_values['COUNT'] = $max_items;
 
-  $rrule = date_api_ical_build_rrule($form_values);
+  $rrule = date_repeat_ical_build_rrule($form_values);
   $items[0]['rrule'] = $rrule;
 
   $values = date_repeat_build_dates($field, $item, $rrule, $form_values);

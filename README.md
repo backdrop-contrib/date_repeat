@@ -13,7 +13,7 @@ and manages Date fields that use the Date Repeat API.
 
 ## Issues
 
- - Bugs and Feature requests should be reported in the [Issue Queue](https://github.com/backdrop-contrib/date_repeat/issues).
+- Bugs and Feature requests should be reported in the [Issue Queue](https://github.com/backdrop-contrib/date_repeat/issues).
 
 ## Similar Modules
 
