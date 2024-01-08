@@ -820,3 +820,16 @@ function date_repeat_field_field_update_field($field, $prior_field, $has_data) {
     }
   }
 }
+
+/**
+ * Implements hook_multiple_fields_remove_button_skip_widget().
+ */
+function date_repeat_field_multiple_fields_remove_button_skip_widget($element, $form_state, $context) {
+  if (in_array($context['field']['type'], array('date', 'datetime', 'datestamp'))
+    && !empty($context['field']['settings']['repeat'])
+  ) {
+    return TRUE;
+  }
+
+  return NULL;
+}
