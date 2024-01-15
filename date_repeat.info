@@ -8,3 +8,4 @@ stylesheets[all][] = css/date_repeat.css
 stylesheets[all][] = css/date_repeat_field.css
 
 dependencies[] = date
+dependencies[] = system (>= 1.26.4)
