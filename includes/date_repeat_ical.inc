@@ -127,6 +127,10 @@ function date_repeat_ical_parse_date($field, $data) {
 /**
  * Parse an ical repeat rule.
  *
+ * @param string $field
+ *   Deprecated.
+ * @param string $data
+ *   RRULE string.
  * @return array
  *   Array in the form of PROPERTY => array(VALUES)
  *   PROPERTIES include FREQ, INTERVAL, COUNT, BYDAY, BYMONTH, BYYEAR, UNTIL
@@ -161,6 +165,9 @@ function date_repeat_ical_parse_rrule($field, $data) {
 /**
  * Parse exception dates (can be multiple values).
  *
+ * @param string $field
+ * @param string $data
+ *
  * @return array
  *   an array of date value arrays.
  */
@@ -184,7 +191,7 @@ function date_repeat_ical_parse_exceptions($field, $data) {
  * @param string $to_tz
  *   The timezone to convert the date's value to.
  *
- * @return object
+ * @return BackdropDateTime
  *   A timezone-adjusted date object.
  */
 function date_repeat_ical_date($ical_date, $to_tz = FALSE) {
@@ -278,6 +285,9 @@ function date_repeat_ical_escape_text($text) {
  *         [tz] => US/Eastern
  *       )
  *     )
+ *
+ * @return string
+ *   A RRULE formatted string.
  */
 function date_repeat_ical_build_rrule($form_values) {
   $rrule = '';

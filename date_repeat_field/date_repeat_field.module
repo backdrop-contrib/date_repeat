@@ -44,8 +44,8 @@ function date_repeat_field_theme() {
 /**
  * Theme the human-readable description for a Date Repeat rule.
  *
- * TODO -
- * add in ways to store the description in the date so it isn't regenerated
+ * @todo
+ * Add in ways to store the description in the date so it isn't regenerated
  * over and over and find a way to allow description to be shown or hidden.
  */
 function theme_date_repeat_display($vars) {
@@ -136,6 +136,12 @@ function date_repeat_field_show($entity_type = 'node', $entity = NULL) {
 
 /**
  * A page to list all values for a repeating date.
+ *
+ * @param string $entity_type
+ * @param object|string|null $entity
+ *
+ * @return string
+ *   Rendered output.
  */
 function date_repeat_field_page($entity_type = 'node', $entity = NULL) {
   $bundle = date_repeat_get_entity_bundle($entity_type, $entity);
@@ -161,7 +167,10 @@ function date_repeat_field_page($entity_type = 'node', $entity = NULL) {
 }
 
 /**
- * Return an array of all entity types and bundles that have repeating date fields.
+ * Bundles with repeating date fields.
+ *
+ * @return array
+ *   An array of all entity types and bundles that have repeating date fields.
  */
 function date_repeat_field_bundles() {
   $values = array();
@@ -179,6 +188,12 @@ function date_repeat_field_bundles() {
 
 /**
  * Check field is repeat.
+ *
+ * @param string|array $field
+ * @param string|array|null $instance
+ *   Deprecated
+ *
+ * @return int
  */
 function date_repeat_field_is_repeat_field($field, $instance = NULL) {
   if (is_string($field)) {
@@ -470,6 +485,13 @@ function date_repeat_after_build($form, &$form_state) {
  *
  * Pass in either the RRULE or the $form_values array for the RRULE,
  * whichever is missing will be created when needed.
+ *
+ * @param string $rrule
+ * @param array $rrule_values
+ * @param array $field
+ * @param array $item
+ *
+ * @return array
  */
 function date_repeat_build_dates($rrule, $rrule_values, $field, $item) {
   include_once BACKDROP_ROOT . '/' . backdrop_get_path('module', 'date_repeat') . '/includes/date_repeat_ical.inc';

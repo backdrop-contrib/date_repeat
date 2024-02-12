@@ -1060,6 +1060,10 @@ function theme_date_repeat_rrule($vars) {
 
 /**
  * Filter non zero values.
+ *
+ * @param int $value
+ *
+ * @return bool
  */
 function date_repeat_filter_non_zero_value($value) {
   return $value !== 0;
@@ -1070,6 +1074,10 @@ function date_repeat_filter_non_zero_value($value) {
  *
  * Can be used for transforming the returned value of checkbox(es) element
  * to the format of returned value of multiple select element.
+ *
+ * @param array $values
+ *
+ * @return array
  */
 function date_repeat_transform_checkbox_values_to_select_values($values) {
   return array_filter($values, 'date_repeat_filter_non_zero_value');

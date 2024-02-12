@@ -29,6 +29,16 @@
  * Private implementation of date_repeat_calc().
  *
  * Compute dates that match the requested rule, within a specified date range.
+ *
+ * @param string $rrule
+ * @param string|array $start
+ * @param string|array $end
+ * @param array $exceptions
+ * @param string|null $timezone
+ * @param array $additions
+ *
+ * @return array
+ *   Array of days.
  */
 function _date_repeat_calc($rrule, $start, $end, $exceptions, $timezone, $additions) {
   module_load_include('inc', 'date_repeat', 'includes/date_repeat_ical');
@@ -411,6 +421,12 @@ function _date_repeat_calc($rrule, $start, $end, $exceptions, $timezone, $additi
 
 /**
  * See if the RRULE needs some imputed values added to it.
+ *
+ * @param array $rrule
+ * @param DateTimeInterface $start_date
+ *
+ * @return array
+ *   An RRULE array.
  */
 function date_repeat_adjust_rrule($rrule, $start_date) {
   // If this is not a valid value, do nothing;
@@ -452,6 +468,15 @@ function date_repeat_adjust_rrule($rrule, $start_date) {
  * Check that the date to be added is between the start and end date
  * and that it is not in the $exceptions, nor already in the $days array,
  * and that it meets other criteria in the RRULE.
+ *
+ * @param array $days
+ * @param DateTimeInterface $current_day
+ * @param DateTimeInterface $start_date
+ * @param DateTimeInterface $end_date
+ * @param array $exceptions
+ * @param array $rrule
+ *
+ * @return bool
  */
 function date_repeat_add_dates(&$days, $current_day, $start_date, $end_date, $exceptions, $rrule) {
   if (isset($rrule['COUNT']) && count($days) >= $rrule['COUNT']) {
@@ -510,6 +535,13 @@ function date_repeat_add_dates(&$days, $current_day, $start_date, $end_date, $ex
 
 /**
  * Stop when $current_day is greater than $end_date or $count is reached.
+ *
+ * @param DateTimeInterface $current_day
+ * @param array $days
+ * @param int $count
+ * @param DateTimeInterface $end_date
+ *
+ * @return bool
  */
 function date_repeat_is_finished($current_day, $days, $count, $end_date) {
   if (($count && count($days) >= $count)
@@ -529,6 +561,15 @@ function date_repeat_is_finished($current_day, $days, $count, $end_date) {
  *   will reset $date to the second to last Sunday in the month.
  *   If $day is empty, will set to the number of days from the
  *   beginning or end of the month.
+ *
+ * @param DateTimeInterface $date_in
+ * @param string $day
+ * @param int $count
+ * @param string $direction
+ * @param string $timezone
+ * @param string $modify_time
+ *
+ * @return DateTimeInterface
  */
 function date_repeat_set_month_day($date_in, $day, $count = 1, $direction = '+', $timezone = 'UTC', $modify_time = '') {
   if (is_object($date_in)) {
@@ -579,6 +620,16 @@ function date_repeat_set_month_day($date_in, $day, $count = 1, $direction = '+',
  *   will reset $date to the second to last Sunday in the year.
  *   If $day is empty, will set to the number of days from the
  *   beginning or end of the year.
+ *
+ * @param DateTimeInterface $date_in
+ * @param string $month
+ * @param string $day
+ * @param int $count
+ * @param string $direction
+ * @param string $timezone
+ * @param string $modify_time
+ *
+ * @return DateTimeInterface
  */
 function date_repeat_set_year_day($date_in, $month, $day, $count = 1, $direction = '+', $timezone = 'UTC', $modify_time = '') {
   if (is_object($date_in)) {

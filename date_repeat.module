@@ -71,6 +71,9 @@ function date_repeat_theme_registry_alter(&$theme_registry) {
 
 /**
  * Helper function for FREQ options.
+ *
+ * @return array
+ *   Array of FREQ options.
  */
 function date_repeat_freq_options() {
   return array(
@@ -83,6 +86,9 @@ function date_repeat_freq_options() {
 
 /**
  * Helper function for interval options.
+ *
+ * @return array
+ *   Array of 365 intervals.
  */
 function date_repeat_interval_options() {
   $options = range(0, 366);
@@ -94,9 +100,12 @@ function date_repeat_interval_options() {
 /**
  * Helper function for FREQ options.
  *
- * Translated and untranslated arrays of the iCal day of week names.
- * We need the untranslated values for date_modify(), translated
- * values when displayed to user.
+ * @param bool $translated
+ *
+ * @return array
+ *   Translated and untranslated arrays of the iCal day of week names.
+ *   We need the untranslated values for date_modify(), translated
+ *   values when displayed to user.
  */
 function date_repeat_dow_day_options($translated = TRUE) {
   return array(
@@ -113,7 +122,11 @@ function date_repeat_dow_day_options($translated = TRUE) {
 /**
  * Helper function for FREQ options.
  *
- * Translated and untranslated arrays of the iCal abbreviated day of week names.
+ * @param bool $translated
+ * @param int $length
+ *
+ * @return array
+ *   Translated and untranslated arrays of the iCal abbreviated day of week names.
  */
 function date_repeat_dow_day_options_abbr($translated = TRUE, $length = 3) {
   $return = array();
@@ -138,6 +151,9 @@ function date_repeat_dow_day_options_abbr($translated = TRUE, $length = 3) {
 
 /**
  * Helper function for weekdays translated.
+ *
+ * @return array
+ *   Array of translated weekdays.
  */
 function date_repeat_dow_day_untranslated() {
   static $date_repeat_weekdays;
@@ -157,6 +173,10 @@ function date_repeat_dow_day_untranslated() {
 
 /**
  * Helper function for weekdays order.
+ *
+ * @param array $weekdays
+ *
+ * @return array
  */
 function date_repeat_dow_day_options_ordered($weekdays) {
   $day_keys = array_keys($weekdays);
@@ -173,6 +193,9 @@ function date_repeat_dow_day_options_ordered($weekdays) {
 
 /**
  * Helper function for BYDAY options.
+ *
+ * @return array
+ *   Array of BYDAY options.
  */
 function date_repeat_dow_count_options() {
   return array('' => t('Every', array(), array('context' => 'date_order'))) + date_repeat_order_translated();
@@ -181,7 +204,8 @@ function date_repeat_dow_count_options() {
 /**
  * Helper function for BYDAY options.
  *
- * Creates options like -1SU and 2TU
+ * @return array
+ *   Array of options like -1SU and 2TU
  */
 function date_repeat_dow_options() {
   $options = array();
@@ -226,6 +250,11 @@ function date_repeat_days_ordered($week_start_day) {
  * Build a description of an iCal rule.
  *
  * Constructs a human-readable description of the rule.
+ *
+ * @param string $rrule
+ * @param string $format
+ *
+ * @return string|null
  */
 function date_repeat_rrule_description($rrule, $format = 'D M d Y') {
   // Empty or invalid value.
@@ -377,6 +406,11 @@ function date_repeat_rrule_description($rrule, $format = 'D M d Y') {
 
 /**
  * Parse an iCal rule into a parsed RRULE array and an EXDATE array.
+ *
+ * @param string $rrule
+ *
+ * @return array
+ *   An array containing arrays of rrule, exceptions and additions.
  */
 function date_repeat_split_rrule($rrule) {
   $parts = explode("\n", str_replace("\r\n", "\n", $rrule));
@@ -405,6 +439,16 @@ function date_repeat_split_rrule($rrule) {
 
 /**
  * Analyze a RRULE and return dates that match it.
+ *
+ * @param string $rrule
+ * @param string|array $start
+ * @param string|array $end
+ * @param array $exceptions
+ * @param string|null $timezone
+ * @param array $additions
+ *
+ * @return array
+ *   Array of days.
  */
 function date_repeat_calc($rrule, $start, $end, $exceptions = array(), $timezone = NULL, $additions = array()) {
   module_load_include('inc', 'date_repeat', 'includes/date_repeat_calc');
@@ -504,6 +548,8 @@ function date_repeat_form_element_radios_process($element) {
 /**
  * For converting back and forth from '+1' to 'First'.
  * Originally date_order_translated().
+ *
+ * @return array
  */
 function date_repeat_order_translated() {
     return array(
@@ -523,6 +569,8 @@ function date_repeat_order_translated() {
 /**
  * Creates an array of ordered strings, using English text when possible.
  * Originally date_order().
+ *
+ * @return array
  */
 function date_repeat_order() {
     return array(
@@ -542,6 +590,11 @@ function date_repeat_order() {
 /**
  * Function to figure out the bundle name for an entity.
  * Originally date_get_entity_bundle().
+ *
+ * @param string $entity_type
+ * @param object|string $entity
+ *
+ * @return string
  */
 function date_repeat_get_entity_bundle($entity_type, $entity) {
   switch ($entity_type) {
@@ -564,6 +617,10 @@ function date_repeat_get_entity_bundle($entity_type, $entity) {
 /**
  * Create replacement values for deprecated timezone names.
  * Originally _date_timezone_replacement().
+ *
+ * @param string $old
+ *
+ * @return string
  */
 function _date_repeat_timezone_replacement($old) {
   $replace = array(
