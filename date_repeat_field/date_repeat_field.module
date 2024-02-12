@@ -226,18 +226,36 @@ function date_repeat_field_date_field_insert_alter(&$items, $context) {
  * Implements hook_date_field_update_alter().
  */
 function date_repeat_field_date_field_update_alter(&$items, $context) {
+  if (empty($context['field']['settings']['repeat'])) {
+    return;
+  }
+
+  $has_rrule = FALSE;
 
   // If an RRULE with a frequency of NONE made it this far, unset it.
-  if (!empty($items[0]['rrule']) && strpos($items[0]['rrule'], 'FREQ=NONE')) {
+  if (!empty($items[0]['rrule']) && is_string($items[0]['rrule']) && strpos($items[0]['rrule'], 'FREQ=NONE')) {
     $items[0]['rrule'] = NULL;
   }
 
   // If you have a repeating date field on a user and don't check the box to repeat it,
   // we end up with $items[0]['rrule'] = array('additions' => '', 'exceptions' => ''));
   // This will clean it up by getting rid of those bogus values.
-  // @TODO Figure out where that's coming from. It doesn't happen on nodes.
+  // @todo Figure out where that's coming from. It doesn't happen on nodes.
   if (!empty($items[0]['rrule']) && is_array($items[0]['rrule'])) {
     $items[0]['rrule'] = NULL;
+  }
+
+  if ($items[0]['rrule']) {
+    $has_rrule = TRUE;
+  }
+
+  // Toggling the show repeat causes problems. Keep only the first item if it's
+  // no longer a repeating date.
+  // @todo handle this better: this is probably papering over an issue earlier
+  // in the process.
+  // @see https://github.com/backdrop-contrib/date_repeat/issues/27
+  if (!$has_rrule) {
+    $items = array_slice($items, 0, 1);
   }
 }
 
