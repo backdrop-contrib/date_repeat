@@ -140,6 +140,10 @@ function date_repeat_field_date_field_insert(&$items, $context) {
 
 /**
  * Generate a random content keys.
+ *
+ * @param array $array
+ *
+ * @return int
  */
 function date_content_generate_key($array) {
   $keys = array_keys($array);
@@ -151,8 +155,9 @@ function date_content_generate_key($array) {
 /**
  * Helper function for BYDAY options.
  *
- * Creates options like -1SU and 2TU
- * Omit options that won't find many matches, like 5th Sunday.
+ * @return array
+ *   Creates options like -1SU and 2TU
+ *   Omit options that won't find many matches, like 5th Sunday.
  */
 function date_content_repeat_dow_options() {
   $options = array();

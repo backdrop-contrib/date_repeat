@@ -17,24 +17,27 @@ and manages Date fields that use the Date Repeat API.
 
 ## Similar Modules
 
- - [Repeating Dates](https://github.com/backdrop-contrib/repeating_dates), which
-   was rewritten from the ground up by @indigoxela.
+- [Repeating Dates](https://github.com/backdrop-contrib/repeating_dates), which
+  was rewritten from the ground up by @indigoxela.
 
 ## Current Maintainers
 
- - [Herb v/d Dool](https://github.com/herbdool)
- - [Laryn Kragt Bakker](https://github.com/laryn)
+- [Herb v/d Dool](https://github.com/herbdool)
+- [Laryn Kragt Bakker](https://github.com/laryn)
 
 ## Credits
 
- - Ported to Backdrop by [Graham Oliver](https://github.com/Graham-72) and
-   [Laryn Kragt Bakker](https://github.com/laryn).
- - Partial support for the initial Backdrop port was provided by [CEDC.org](https://cedc.org).
- - Maintained for Drupal by [KarenS](https://www.drupal.org/u/karens),
-   [DamienMcKenna](https://www.drupal.org/u/damienmckenna),
-   [vijaycs85](https://www.drupal.org/u/vijaycs85),
-   [podarok](https://www.drupal.org/u/podarok), and
-   [sanchiz ](https://www.drupal.org/u/sanchiz).
+Ported to Backdrop by [Graham Oliver](https://github.com/Graham-72) and
+[Laryn Kragt Bakker](https://github.com/laryn).
+
+Partial support for the initial Backdrop port was provided by
+[CEDC.org](https://cedc.org).
+
+Maintained for Drupal by [KarenS](https://www.drupal.org/u/karens),
+[DamienMcKenna](https://www.drupal.org/u/damienmckenna),
+[vijaycs85](https://www.drupal.org/u/vijaycs85),
+[podarok](https://www.drupal.org/u/podarok), and
+[sanchiz ](https://www.drupal.org/u/sanchiz).
 
 ## License
 
