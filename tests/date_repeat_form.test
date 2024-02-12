@@ -17,21 +17,27 @@ class DateRepeatFormTestCase extends BackdropWebTestCase {
 
     // Create and log in our privileged user.
     $this->privileged_user = $this->backdropCreateUser(array(
-      'administer content types', 'administer nodes', 'bypass node access', 'view date repeats'
+      'administer content types', 'administer nodes', 'administer fields', 'bypass node access', 'view date repeats'
     ));
     $this->backdropLogin($this->privileged_user);
 
     $format = system_date_format_load('short');
-    $format['pattern'] = 'm/d/Y - H:i';
+    $format['pattern'] = 'Y-m-d - H:i';
     system_date_format_save($format);
   }
 
+  /**
+   * Test date repeat form
+   */
   public function testDateRepeatForm() {
     $edit = array();
     $edit['name'] = 'Date';
     $edit['type'] = 'date';
     $this->backdropPost('admin/structure/types/add', $edit, t('Save content type'));
     $this->assertText('The content type Date has been added.', 'Content type added.');
+    // Delete body field.
+    $this->backdropPost('admin/structure/types/manage/date/fields/body/delete', NULL, t('Delete'));
+
     $display_all_day = FALSE;
 
     // Testing options.
@@ -184,11 +190,21 @@ class DateRepeatFormTestCase extends BackdropWebTestCase {
     }
   }
 
+  /**
+   * Date form
+   *
+   * @param array $options
+   * @param int|null $test_id
+   * @param bool $is_count
+   * @param string|null $exclude_include
+   *
+   * @return array
+   */
   function dateForm($options, $test_id = NULL, $is_count = FALSE, $exclude_include = NULL) {
     // Tests that date field functions properly.
     $edit = array();
     $edit['title'] = $this->randomName(8);
-    $edit['body[und][0][value]'] = $this->randomName(16);
+    //$edit['body[und][0][value]'] = $this->randomName(16);
     $current_year = date('Y');
 
 
@@ -426,12 +442,17 @@ class DateRepeatFormTestCase extends BackdropWebTestCase {
     }
 
     $this->backdropPost('node/add/date', $edit, t('Save'));
-    $this->assertText($edit['body[und][0][value]'], 'Test node has been created');
+    //$this->assertText($edit['body[und][0][value]'], 'Test node has been created');
 
     // Return the settings for later use in verification
     return $edit;
   }
 
+  /**
+   * Verify date form
+   *
+   * @param array $edit
+   */
   function verifyDateForm($edit) {
     $title = $edit['title'];
     $node = $this->backdropGetNodeByTitle($title);
@@ -439,6 +460,9 @@ class DateRepeatFormTestCase extends BackdropWebTestCase {
     $this->backdropGet("node/{$node->nid}/edit");
 
     foreach ($edit as $field => $value) {
+      // @todo need a better way to test the value since the format depends
+      // on the browser settings.
+      //$format_value = format_date(strtotime($value), 'custom', 'm/d/Y - Hi');
       $this->assertFieldByName($field, $value);
     }
 
@@ -446,6 +470,13 @@ class DateRepeatFormTestCase extends BackdropWebTestCase {
     $this->assertRaw(t('Date %title has been deleted.', array('%title' => $title)), t('Deleted Date content.'));
   }
 
+  /**
+   * Create date field
+   *
+   * @param string $type
+   * @param string $widget
+   * @param bool $display_all_day
+   */
   function createDateField($type, $widget, $display_all_day = FALSE) {
     $edit = array();
     $edit['fields[_add_new_field][label]'] = 'Test';
@@ -485,16 +516,28 @@ class DateRepeatFormTestCase extends BackdropWebTestCase {
     $this->assertRaw(t('Saved %label configuration.', array('%label' => $label)), t('Redirected to "Manage fields" page.'));
 
     // Check that the field appears in the overview form.
-    $this->assertFieldByXPath('//table[@id="field-overview"]//td[1]', $label, t('Field was created and appears in the overview page.'));
+    $this->assertFieldByXPath('//table[@id="field-overview"]//span[@class="label-field"]', $label, t('Field was created and appears in the overview page.'));
   }
 
+  /**
+   * Delete date field.
+   */
   function deleteDateField() {
     $this->backdropGet('admin/structure/types/manage/date/fields');
-    $this->clickLink('delete');
+    $this->clickLink('Delete');
     $this->backdropPost(NULL, NULL, t('Delete'));
     $this->assertText(t('The field Test has been deleted from the Date content type.'), t('Removed date field.'));
   }
 
+  /**
+   * Format date for RRULE inputs
+   *
+   * @param string $form_field_name
+   * @param string $date_widget_type
+   * @param array $date
+   *
+   * @return array
+   */
   function formatDateForRRULEInputs($form_field_name, $date_widget_type, $date) {
     $return = array();
 
