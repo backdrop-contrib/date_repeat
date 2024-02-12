@@ -70,7 +70,7 @@ function date_repeat_field_menu() {
   foreach ($values as $entity_type => $bundles) {
     if (module_exists('field_collection') && $entity_type == 'field_collection_item') {
       module_load_include('inc', 'date_repeat_field', '/includes/date_repeat_field.field_collection');
-      _date_repeat_field_field_collection_menu_tabs($bundles);
+      $items = array_merge($items, _date_repeat_field_field_collection_menu_tabs($bundles));
     }
     else {
       $path = $entity_type . '/%' . $entity_type;

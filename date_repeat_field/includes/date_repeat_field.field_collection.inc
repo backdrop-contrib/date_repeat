@@ -9,8 +9,12 @@
   * Define the repeat menu tabs for field collection.
   *
   * @param array $bundles
+  * @return array
+  *   List of menu items.
   */
 function _date_repeat_field_field_collection_menu_tabs($bundles) {
+  $items = array();
+
   foreach ($bundles as $bundle => $fields) {
     $field = field_info_field($bundle);
     if ($field['type'] == 'field_collection') {
@@ -27,4 +31,5 @@ function _date_repeat_field_field_collection_menu_tabs($bundles) {
       );
     }
   }
+  return $items;
 }
